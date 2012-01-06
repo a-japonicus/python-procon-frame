@@ -33,28 +33,31 @@ class Session(object):
             self.session_id=cookie['SESSIONID'].value
             self.load()
         else:
-            self.session_id = self.generate_id()
+            self.session_id = self.regenerate_id()
             self.data = {}
+        self.handler.gc(self.setting['session_limit'])
     def load(self):
-        data = self.handler.read(self.session_id)
+        data = self.handler.read(self.session_id, self.setting['session_limit'])
+        print(data)
         try:
             self.data = self.serializer.loads(data.encode('utf-8'))
         except:
             self.data = {}
     def save(self):
         if self.session_id == None:
-            self.session_id = self.generate_id()
+            self.session_id = self.regenerate_id()
         if self.session_id != None:
-             self.handler.write(self.session_id, self.serializer.dumps(self.data))
-#             data = self.handler.read(self.session_id)
-#             raise Exception(self.serializer.dumps(self.data), self.serializer.loads(data.encode('utf-8')))
+            self.handler.write(self.session_id, self.serializer.dumps(self.data))
+#            data = self.handler.read(self.session_id)
+#            print(self.data, self.serializer.loads(data.encode('utf-8')))
+#            raise Exception(self.serializer.dumps(self.data), self.serializer.loads(data.encode('utf-8')))
     def setvalue(self, key, value):
         self.data[key] = value
     def getvalue(self, key, default=None):
         if key in self.data:
             return self.data[key]
         return default
-    def generate_id(self):
+    def regenerate_id(self):
         for i in range(10):
             session_id = '%s' % uuid.uuid4()
             if self.handler.create(session_id):
@@ -64,3 +67,7 @@ class Session(object):
         return session_id
     def get_session_id(self):
         return self.session_id
+    def close(self):
+        self.cookie['SESSIONID'] = self.session_id
+        self.save()
+        self.handler.close()

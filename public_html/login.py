@@ -22,43 +22,54 @@ class LoginPage(Page):
     def __init__(self, session, form_data=None):
         super(LoginPage, self).__init__(u'ログイン', form_data)
         self.set_session(session)
-    def make_page_data(self):
-        page = DivTag('page')
+    def make_page(self):
         username = self.form_data.getvalue('username', '')
         password = self.form_data.getvalue('password', '')
         mode = self.form_data.getvalue('mode')
-        is_login = False;
-        message = ''
+        login = False;
+        redirect = False
 
         if self.session.getvalue('login', False):
-            page.add_value(PTag(u'ログイン済みです'))
+            login = True
         else:
             if mode == 'login':
                 if username.isalnum() and password.isalnum():
                     if username == 'user' and password == 'pass':
                         # ここで認証＆リダイレクト
-                        self.session.setvalue('login', True)
                         self.session.regenerate_id()
-                        page.add_value(RedirectTag('./index.py?page=login'))
-                        is_login = True
-                if not is_login:
-                    message = u'ログインに失敗しました'
+                        self.session.setvalue('login', True)
+                        login = True
+                        redirect = True
 
-            if not is_login:
-                if not username.isalnum():
-                    username = ''
-                page.add_value(H2Tag(u'ログイン画面'))
-                regist_link = ATag('./index.py?page=regist', u'こちら')
-                page.add_value(PTag(u'ログインするとランキングに表示されます。未登録の方は%sから登録してください。' % regist_link))
-                form_tag = FormTag(action='./index.py?page=login')
-                form_tag.add_value(u'ユーザ名:%s<br>' % TextTag(name='username', value=username))
-                form_tag.add_value(u'パスワード:%s<br>' % PasswordTag(name='password', value=''))
-                form_tag.add_value(HiddenTag(name='mode', value='login'))
-                form_tag.add_value(SubmitTag(value=u'ログイン'))
+        # テンプレ―ト用データ
+        template_data = {}
+        template_data['mode'] = mode
+        template_data['redirect'] = redirect
+        template_data['login'] = login
+        template_data['username'] = username
 
-                page.add_value(form_tag)
-                if message != '':
-                    page.add_value(message)
+        return self.template(template_data)
+
+    def template(self, data):
+        page = DivTag('page')
+        if data['redirect']:
+#            page.add_value(RedirectTag('./index.py?page=top'))
+            pass
+        elif data['login']:
+            page.add_value(PTag(u'ログイン済みです'))
+        else:
+            page.add_value(H2Tag(u'ログイン画面'))
+            regist_link = ATag('./index.py?page=regist', u'こちら')
+            page.add_value(PTag(u'ログインするとランキングに表示されます。未登録の方は%sから登録してください。' % regist_link))
+            form_tag = FormTag(action='./index.py?page=login')
+            form_tag.add_value(u'ユーザ名:%s<br>' % TextTag(name='username', value=data['username']))
+            form_tag.add_value(u'パスワード:%s<br>' % PasswordTag(name='password', value=''))
+            form_tag.add_value(HiddenTag(name='mode', value='login'))
+            form_tag.add_value(SubmitTag(value=u'ログイン'))
+            page.add_value(form_tag)
+            if data['mode'] == 'login':
+                page.add_value(u'ログインに失敗しました')
+
         return page
 
 

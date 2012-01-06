@@ -147,7 +147,7 @@ class DBAccess(object):
         """
         sql実行
         """
-        print(sql, data)
+#        print(sql, data)
         self.cur.execute(sql, data)
         return self.cur.fetchall()
     def commit(self):

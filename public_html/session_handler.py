@@ -20,22 +20,14 @@ class SessionHandler(object):
     """
     セッションハンドラ基本クラス
     """
-    def __init__(self, session_limit=1440):
-        self.session_limit = session_limit
-        # 一定確率でガーベジコレクション
-        if random.random() <= GC_PROB:
-            self.gc()
-    def generate_session_id(self):
-        """
-        被らないセッションID生成
-        """
-        return '%s' % uuid.uuid4()
+    def __init__(self):
+        pass
     def create(self, session_id):
         """
         セッション生成
         """
         return False
-    def read(self, session_id):
+    def read(self, session_id, session_limit):
         """
         セッション読み込み
         """
@@ -48,6 +40,16 @@ class SessionHandler(object):
     def delete(self, session_id):
         """
         セッション削除
+        """
+        pass
+    def open(self):
+        """
+        セッション開始
+        """
+        pass
+    def close(self):
+        """
+        セッション終了
         """
         pass
     def gc(self):

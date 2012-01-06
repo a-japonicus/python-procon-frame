@@ -23,10 +23,9 @@ class DBSessionHandler(SessionHandler):
     """
     def __init__(self, setting):
         self.sql_setting = copy.deepcopy(setting['sql_setting'])
-        self.session_limit = setting['session_limit']
         self.dba = DBAccess(self.sql_setting)
         self.create_tbl()
-        super(DBSessionHandler, self).__init__(self.session_limit)
+        super(DBSessionHandler, self).__init__()
     def create_tbl(self):
         """
         テーブル生成
@@ -46,12 +45,12 @@ class DBSessionHandler(SessionHandler):
             return True
         except:
             return False
-    def read(self, session_id):
+    def read(self, session_id, session_limit):
         """
         セッション読み込み
         """
         if session_id != None:
-            res = self.dba.select('session_tbl', fields={'data'}, where={'session_id':session_id, 'update_time>':time.mktime(gmtime())-self.session_limit})
+            res = self.dba.select('session_tbl', fields={'data'}, where={'session_id':session_id, 'update_time>':time.mktime(gmtime())-session_limit})
             if len(res) == 1:
                 return res[0]['data']
         return None
@@ -73,11 +72,16 @@ class DBSessionHandler(SessionHandler):
         if session_id != None:
             self.dba.delete('session_tbl', where={'session_id':session_id})
             self.dba.commit()
-    def gc(self):
+    def close(self):
+        """
+        セッション終了
+        """
+        self.dba.close()
+    def gc(self, session_limit):
         """
         ガーベジコレクション
         """
-        self.dba.execute_sql('DELETE FROM session_tbl WHERE update_time+:session_limit > :now',{'session_limit':self.session_limit, 'now':time.mktime(gmtime())})
+        self.dba.execute_sql('DELETE FROM session_tbl WHERE update_time+:session_limit > :now',{'session_limit':session_limit, 'now':time.mktime(gmtime())})
         self.dba.commit()
 
 if __name__ == '__main__':

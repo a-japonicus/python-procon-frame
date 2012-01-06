@@ -31,7 +31,9 @@ class Page(object):
         return self.title
     def set_title(self, title):
         self.title = title
-    def make_page_data(self):
+    def make_page(self):
+        return self.template(data={})
+    def template(self, data):
         page = DivTag('page')
         page.add_value(u'未実装ページです')
         return page
