@@ -16,6 +16,7 @@ import pickle
 import json
 import uuid
 import time
+import datetime
 import copy
 from Cookie import SimpleCookie
 
@@ -68,6 +69,8 @@ class Session(object):
     def get_session_id(self):
         return self.session_id
     def close(self):
+        expires = datetime.datetime.now()+datetime.timedelta(seconds=self.setting['session_limit'])
         self.cookie['SESSIONID'] = self.session_id
+        self.cookie['SESSIONID']["expires"]=expires.strftime("%a, %d-%b-%Y %H:%M:%S JST")
         self.save()
         self.handler.close()

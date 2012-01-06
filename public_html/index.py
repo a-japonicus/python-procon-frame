@@ -93,4 +93,4 @@ response.add_response_data(html)
 
 session.close()
 print (response)
-
+print(cookie.output())
