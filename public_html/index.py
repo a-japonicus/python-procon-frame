@@ -13,6 +13,7 @@
 import cgi
 import os
 import atexit
+import ConfigParser
 from Cookie import SimpleCookie
 from response import Response
 from session import Session
@@ -23,17 +24,20 @@ from db_session_handler import DBSessionHandler
 form = cgi.FieldStorage()
 cookie=SimpleCookie(os.environ.get('HTTP_COOKIE',''))
 
+
+CONF_FILE = os.path.join(os.path.dirname(__file__), "../setting.conf")
+conf = ConfigParser.SafeConfigParser()
+conf.read(CONF_FILE)
+
 # セッション設定
-handler_setting={
-    'sql_setting':{
-        'sql':'sqlite',
-        'db':'session.db',
-    },
-}
-session_setting = {
-    'session_limit':1440
-}
-session_handler = DBSessionHandler(handler_setting)
+session_setting = {}
+for k,v in conf.items('session'):
+    session_setting[k] = v;
+session_handler_setting = {}
+for k,v in conf.items('session_handler'):
+    session_handler_setting[k] = v;
+
+session_handler = DBSessionHandler(session_handler_setting)
 session = Session(cookie, session_handler, session_setting)
 
 
@@ -75,22 +79,15 @@ if response_page == None:
     response_page = Page()
 
 # HTMLの組立て
-title = TitleTag(u'高専プロコン競技練習場[%s]' % response_page.get_title())
-
-head = HeadTag()
-head.add_value(title)
-
-body = BodyTag()
-body.add_value(top)
-body.add_value(HRTag())
-body.add_value(response_page.make_page())
-
-html = HtmlTag()
-html.add_value(head)
-html.add_value(body)
-
-response.add_response_data(html)
-
+response.add_response_data(
+    HtmlTag(values=[
+        HeadTag(TitleTag(u'高専プロコン競技練習場[%s]' % response_page.get_title())),
+        BodyTag(values=[
+            top,
+            HRTag(),
+            response_page.make_page(),
+        ])
+    ])
+)
 session.close()
 print (response)
-print(cookie.output())

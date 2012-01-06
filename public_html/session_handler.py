@@ -27,7 +27,7 @@ class SessionHandler(object):
         セッション生成
         """
         return False
-    def read(self, session_id, session_limit):
+    def read(self, session_id, lifetime):
         """
         セッション読み込み
         """
@@ -52,7 +52,7 @@ class SessionHandler(object):
         セッション終了
         """
         pass
-    def gc(self):
+    def gc(self, lifetime):
         """
         ガーベジコレクション
         """

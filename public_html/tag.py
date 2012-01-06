@@ -19,17 +19,21 @@ class Tag(object):
     """
     HTMLタグクラス
     """
-    def __init__(self, tag='', value=None, elements={}):
+    def __init__(self, tag='', values=None, elements={}):
         self.tag = tag
         self.values = []
-        if value:
-            self.add_value(value)
+        if values:
+            self.add_value(values)
         self.elements = elements.copy()
     def set_tag(self, tag):
         self.tag = tag
-    def add_value(self, value, escape=True):
-        self.values.append(value)
-    def set_element(self, key, value, escape=True):
+    def add_value(self, values):
+        if hasattr(values, '__iter__'):
+            for v in values:
+                self.values.append(v)
+        else:
+            self.values.append(values)
+    def set_element(self, key, value):
         self.elements[key] = value
     def set_tag(self, tag):
         self.tag = tag
@@ -82,22 +86,22 @@ class HtmlTag(Tag):
     """
     htmlタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(HtmlTag, self).__init__('html', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(HtmlTag, self).__init__('html', values, elements)
 
 class HeadTag(Tag):
     """
     headタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(HeadTag, self).__init__('head', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(HeadTag, self).__init__('head', values, elements)
 
 class BodyTag(Tag):
     """
     bodyタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(BodyTag, self).__init__('body', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(BodyTag, self).__init__('body', values, elements)
 
 class MetaTag(Tag):
     """
@@ -119,33 +123,33 @@ class DivTag(Tag):
     """
     divタグ
     """
-    def __init__(self, id='', value=None, elements={}):
-        super(DivTag, self).__init__('div', value, elements)
+    def __init__(self, id='', values=None, elements={}):
+        super(DivTag, self).__init__('div', values, elements)
         self.set_element('id', id)
 
 class ATag(Tag):
     """
     aタグ
     """
-    def __init__(self, href='', value=None, elements={}):
-        if value == None:
-            value = href
-        super(ATag, self).__init__('a', value, elements)
+    def __init__(self, href='', values=None, elements={}):
+        if values == None:
+            values = href
+        super(ATag, self).__init__('a', values, elements)
         self.set_element('href', href)
 
 class TitleTag(Tag):
     """
     titleタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(TitleTag, self).__init__('title', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(TitleTag, self).__init__('title', values, elements)
 
 class FormTag(Tag):
     """
     formタグ
     """
-    def __init__(self, action, method='POST', value='', elements={}):
-        super(FormTag, self).__init__('form', value, elements)
+    def __init__(self, action, method='POST', values='', elements={}):
+        super(FormTag, self).__init__('form', values, elements)
         self.set_element('action', action)
         self.set_element('method', method)
 
@@ -196,54 +200,54 @@ class PTag(Tag):
     """
     pタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(PTag, self).__init__('p', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(PTag, self).__init__('p', values, elements)
 
 class H1Tag(Tag):
     """
     h1のタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(H1Tag, self).__init__('h1', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(H1Tag, self).__init__('h1', values, elements)
 
 class H2Tag(Tag):
     """
     h2のタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(H2Tag, self).__init__('h2', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(H2Tag, self).__init__('h2', values, elements)
 
 class H3Tag(Tag):
     """
     h3のタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(H3Tag, self).__init__('h3', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(H3Tag, self).__init__('h3', values, elements)
 
 class H4Tag(Tag):
     """
     h4のタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(H4Tag, self).__init__('h4', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(H4Tag, self).__init__('h4', values, elements)
 
 class H5Tag(Tag):
     """
     h5のタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(H5Tag, self).__init__('h5', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(H5Tag, self).__init__('h5', values, elements)
 
 class H6Tag(Tag):
     """
     h6のタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(H6Tag, self).__init__('h6', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(H6Tag, self).__init__('h6', values, elements)
 
 class HRTag(Tag):
     """
     hrのタグ
     """
-    def __init__(self, value=None, elements={}):
-        super(HRTag, self).__init__('hr', value, elements)
+    def __init__(self, values=None, elements={}):
+        super(HRTag, self).__init__('hr', values, elements)

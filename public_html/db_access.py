@@ -29,26 +29,29 @@ class DBAccess(object):
     def __init__(self, setting):
         self._db_init(setting)
     def __del__(self):
-        self.close()
+        if self.con:
+            self.close()
     def _db_init(self, setting):
         """
         DB初期化
         """
+        self.con = None
         try:
             self.clear_prepared_list()
-            self.setting = copy.deepcopy(setting)
+            self.setting = setting
             if self.setting['sql'] == 'sqlite':
                 #sqliteを使用
                 self.setting_sqlite()
             else:
                 raise DBInitError(self.setting)
         except:
+            pass
             raise DBInitError(self.setting)
     def setting_sqlite(self):
         """
         sqlite初期化
         """
-        self.con = sqlite3.connect(self.setting['db'])
+        self.con = sqlite3.connect(self.setting['db_dir']+self.setting['db'])
         self.con.row_factory = sqlite3.Row
         self.con.isolation_level = None
         self.cur = self.con.cursor()

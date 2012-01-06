@@ -32,13 +32,17 @@ class Page(object):
     def set_title(self, title):
         self.title = title
     def make_page(self):
+        """
+        ページの処理
+        """
         return self.template(data={})
     def template(self, data):
-        page = DivTag('page')
-        page.add_value(u'未実装ページです')
-        return page
+        """
+        なんちゃってテンプレート
+        """
+        return DivTag('page', PTag(u'未実装ページです'))
     def __str__(self):
-        return '%s' % self.make_page_data();
+        return '%s' % self.make_page();
 
 
 if __name__ == '__main__':
