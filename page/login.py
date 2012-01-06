@@ -11,6 +11,7 @@
 # Copyright:   (c) hatahata 2011
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
+import path
 from page import Page
 from session import Session
 from tag import *

@@ -10,6 +10,7 @@
 # Copyright:   (c) hatahata 2012
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
+import path
 from tag import *
 from session import Session
 

@@ -10,6 +10,7 @@
 # Copyright:   (c) hatahata 2011
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
+import path
 import cgi
 import os
 import atexit

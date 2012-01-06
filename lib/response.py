@@ -10,9 +10,9 @@
 # Copyright:   (c) hatahata 2011
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
+import path
 from Cookie import SimpleCookie
 from tag import *
-from session import Session
 
 class Response(object):
     """
