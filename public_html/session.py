@@ -54,7 +54,7 @@ class Session(object):
         if key in self.data:
             return self.data[key]
         return default
-    def regenerate_id(self):
+    def generate_id(self):
         for i in range(10):
             session_id = '%s' % uuid.uuid4()
             if self.handler.create(session_id):
