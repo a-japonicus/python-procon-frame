@@ -84,15 +84,7 @@ response.add_response_data(
 
 session.close()
 print (response)
-"""
-from db_access import DBAccess
-dba = DBAccess(setting['database'])
-users = dba.select('user_tbl',where={'username':'user2'})
-print (users)
-for user in users:
-    print (user)
-    for k,v in users.items():
-        print(k,v)
-"""
+
+# デバッグ出力
 if setting['debug']['enable'] == 'On':
     print (error_info)
