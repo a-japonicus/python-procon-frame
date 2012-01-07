@@ -61,7 +61,6 @@ class DBSessionHandler(SessionHandler):
         """
         if session_id is not None:
             res = self.dba.update(table='session_tbl', sets={'data':data, 'update_time':time.mktime(gmtime())}, where={'session_id':session_id})
-            print (res)
             if res == 0:
                 self.dba.insert('session_tbl', {'session_id':session_id, 'data':data, 'update_time':time.mktime(gmtime())})
             self.dba.commit()

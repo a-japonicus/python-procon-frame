@@ -25,29 +25,29 @@ from db_session_handler import DBSessionHandler
 form = cgi.FieldStorage()
 cookie=SimpleCookie(os.environ.get('HTTP_COOKIE',''))
 
-
+# 設定ファイル読み込み
 CONF_FILE = os.path.join(os.path.dirname(__file__), "../setting.conf")
 conf = ConfigParser.SafeConfigParser()
 conf.read(CONF_FILE)
 
-# セッション設定
-session_setting = {}
-for k,v in conf.items('session'):
-    session_setting[k] = v;
-session_handler_setting = {}
-for k,v in conf.items('session_handler'):
-    session_handler_setting[k] = v;
+setting = {}
+for section in conf.sections():
+    setting[section] = {}
+    for option in conf.options(section):
+        setting[section][option] = conf.get(section, option)
 
-session_handler = DBSessionHandler(session_handler_setting)
-session = Session(cookie, session_handler, session_setting)
+# セッション
+session_handler = DBSessionHandler(setting['session_handler'])
+session = Session(cookie, session_handler, setting['session'])
 
+# レスポンス作成開始
 response = Response(cookie)
 page = form.getvalue('page', 'top')
 
 #トップ部分作成
 top = DivTag('top')
 top.add_value(H1Tag(u'高専プロコン競技練習場'))
-for p in [('top', u'トップ'), ('edit', u'問題作成'), ('about', u'取扱説明書'), ('bbs', u'掲示板'), ('profile', u'プロフィール'), ('regist', u'登録'), ('login', u'ログイン')]:
+for p in [('top', u'トップ'), ('edit', u'問題作成'), ('about', u'取扱説明書'), ('bbs', u'掲示板'), ('profile', u'プロフィール'), ('regist', u'登録'), ('login', u'ログイン'), ('logout', u'ログアウト')]:
 #    if page != p[0]:
         top.add_value(u'[%s]' % ATag('./index.py?page=%s'%p[0], p[1]))
 #    else:
@@ -55,28 +55,20 @@ for p in [('top', u'トップ'), ('edit', u'問題作成'), ('about', u'取扱�
 
 # ページクラスを取得
 response_page = None
+error_info = ""
 try:
-    if page == 'top':
-        pass
-    elif page == 'edit':
-        pass
-    elif page == 'about':
-        pass
-    elif page == 'bbs':
-        pass
-    elif page == 'profile':
-        pass
-    elif page == 'regist':
-        pass
-    elif page == 'login':
-        from login import LoginPage
-        response_page = LoginPage(session, form)
+    # ページクラスを動的インポート
+    page_class_name = page.capitalize()+'Page'
+    page_class = getattr(__import__(page), page_class_name)
+    response_page = page_class(session, setting, form)
 except:
+    import sys
+    error_info = sys.exc_info()
     response_page = None
 
-# ページがなければ未実装と判定
+# ページクラスが読み込めなければ未実装と判定
 if response_page is None:
-    response_page = Page()
+    response_page = Page(session, setting, form)
 
 # HTMLの組立て
 response.add_response_data(
@@ -92,3 +84,15 @@ response.add_response_data(
 
 session.close()
 print (response)
+"""
+from db_access import DBAccess
+dba = DBAccess(setting['database'])
+users = dba.select('user_tbl',where={'username':'user2'})
+print (users)
+for user in users:
+    print (user)
+    for k,v in users.items():
+        print(k,v)
+"""
+if setting['debug']['enable'] == 'On':
+    print (error_info)

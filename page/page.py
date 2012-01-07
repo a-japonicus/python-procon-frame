@@ -18,8 +18,8 @@ class Page(object):
     """
     ページクラス
     """
-    def __init__(self, title=u'未実装ページ', form_data=None):
-        self.set_title(title)
+    def __init__(self, session, setting, form_data=None):
+        self.set_title(u'未実装ページ')
         if form_data is None:
             import cgi
             self.form_data = cgi.FieldStorage()
