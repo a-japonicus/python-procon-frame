@@ -29,7 +29,8 @@ class LogoutPage(Page):
         ページの処理
         """
         login =  self.session.getvalue('login', False)
-        self.session.setvalue('login', False)
+#        self.session.setvalue('login', False)
+        self.session.delete()
 
         # テンプレ―ト用データ
         template_data = {}
@@ -46,7 +47,7 @@ class LogoutPage(Page):
             page.add_value(PTag(u'ログインしていません'))
         else:
             page.add_value(PTag(u'ログアウトしました'))
-
+            page.add_value(RedirectTag('./index.py?page=top', 5))
         return page
 
 

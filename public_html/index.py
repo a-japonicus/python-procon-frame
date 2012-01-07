@@ -20,10 +20,11 @@ from response import Response
 from session import Session
 from tag import *
 from page import Page
-from db_session_handler import DBSessionHandler
 
 form = cgi.FieldStorage()
 cookie=SimpleCookie(os.environ.get('HTTP_COOKIE',''))
+
+#cookie['SESSIONID'] = 'b9c34db31dcd13db6de0f7dad1474397'
 
 # 設定ファイル読み込み
 CONF_FILE = os.path.join(os.path.dirname(__file__), "../setting.conf")
@@ -37,7 +38,13 @@ for section in conf.sections():
         setting[section][option] = conf.get(section, option)
 
 # セッション
-session_handler = DBSessionHandler(setting['session_handler'])
+session_handler = None
+if setting['session']['handler'] == 'file':
+    from file_session_handler import FileSessionHandler
+    session_handler = FileSessionHandler(setting['session'])
+elif setting['session']['handler'] == 'database':
+    from db_session_handler import DBSessionHandler
+    session_handler = DBSessionHandler(setting['database'])
 session = Session(cookie, session_handler, setting['session'])
 
 # レスポンス作成開始
@@ -47,7 +54,14 @@ page = form.getvalue('page', 'top')
 #トップ部分作成
 top = DivTag('top')
 top.add_value(H1Tag(u'高専プロコン競技練習場'))
-for p in [('top', u'トップ'), ('edit', u'問題作成'), ('about', u'取扱説明書'), ('bbs', u'掲示板'), ('profile', u'プロフィール'), ('regist', u'登録'), ('login', u'ログイン'), ('logout', u'ログアウト')]:
+top_links = [('top', u'トップ'), ('edit', u'問題作成'), ('bbs', u'掲示板'), ('about', u'取扱説明書')]
+if session.getvalue('login', False):
+    top_links.append(('profile', u'プロフィール'))
+    top_links.append(('logout', u'ログアウト'))
+else:
+    top_links.append(('regist', u'登録'))
+    top_links.append(('login', u'ログイン'))
+for p in top_links:
 #    if page != p[0]:
         top.add_value(u'[%s]' % ATag('./index.py?page=%s'%p[0], p[1]))
 #    else:

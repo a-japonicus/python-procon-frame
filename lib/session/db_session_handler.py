@@ -25,9 +25,9 @@ class DBSessionHandler(SessionHandler):
     def __init__(self, setting):
         self.sql_setting = setting
         self.dba = DBAccess(self.sql_setting)
-        self.create_tbl()
+        self._create_tbl()
         super(DBSessionHandler, self).__init__()
-    def create_tbl(self):
+    def _create_tbl(self):
         """
         テーブル生成
         """

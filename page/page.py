@@ -20,6 +20,7 @@ class Page(object):
     """
     def __init__(self, session, setting, form_data=None):
         self.set_title(u'未実装ページ')
+        self.setting = setting
         if form_data is None:
             import cgi
             self.form_data = cgi.FieldStorage()

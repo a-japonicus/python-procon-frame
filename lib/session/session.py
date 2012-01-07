@@ -39,6 +39,7 @@ class Session(object):
         self.session_id = None
         self.prev_session_id = []
         self.lifetime = int(self.setting['lifetime'], 10)
+        self.handler.open()
         if COOKIE_SESSIONID in cookie:
             self.session_id=cookie[COOKIE_SESSIONID].value
             self.load()
@@ -48,12 +49,18 @@ class Session(object):
         if random.random() <= GC_PROB:
             self.handler.gc(self.lifetime)
     def load(self):
+        """
+        セッション読み込み
+        """
         data = self.handler.read(self.session_id, self.lifetime)
         try:
             self.data = self.serializer.loads(data)
         except:
             self.data = {}
     def save(self):
+        """
+        セッション保存
+        """
         if self.session_id is None:
             self.regenerate_id()
         if self.session_id is not None:
@@ -61,13 +68,29 @@ class Session(object):
 #            data = self.handler.read(self.session_id)
 #            print(self.data, self.serializer.loads(data.encode('utf-8')))
 #            raise Exception(self.serializer.dumps(self.data), self.serializer.loads(data.encode('utf-8')))
+    def delete(self):
+        """
+        セッション削除
+        """
+        self.handler.delete(self.session_id)
+        self.session_id = None
     def setvalue(self, key, value):
+        """
+        セッションに値書き込み
+        """
         self.data[key] = value
     def getvalue(self, key, default=None):
+
+        """
+        セッションから値取得
+        """
         if key in self.data:
             return self.data[key]
         return default
     def regenerate_id(self):
+        """
+        セッションID再生成
+        """
         for i in range(10):
             session_id = hashlib.md5('%s' % uuid.uuid4()).hexdigest()
             if self.handler.create(session_id):
@@ -78,13 +101,26 @@ class Session(object):
             self.prev_session_id.append(self.session_id)
             self.session_id = session_id
     def get_session_id(self):
+        """
+        セッションID取得
+        """
         return self.session_id
     def close(self):
+        """
+        セッションクローズ
+        """
         if self.session_id is not None:
+            # クッキーにセッションIDをセット
+            self.save()
             expires = datetime.datetime.now()+datetime.timedelta(seconds=self.lifetime)
             self.cookie[COOKIE_SESSIONID] = self.session_id
-            self.cookie[COOKIE_SESSIONID]["expires"]=expires.strftime("%a, %d-%b-%Y %H:%M:%S JST")
-            self.save()
-        for prev_id in self.session_id:
+        else:
+            # セッションIDが存在しないのでクッキー削除
+            expires = datetime.datetime.now()-datetime.timedelta(days=1)
+            self.cookie[COOKIE_SESSIONID] = ''
+        self.cookie[COOKIE_SESSIONID]["expires"]=expires.strftime("%a, %d-%b-%Y %H:%M:%S JST")
+
+        # 過去のセッションIDを削除
+        for prev_id in self.prev_session_id:
             self.handler.delete(prev_id)
         self.handler.close()

@@ -52,7 +52,7 @@ class DBAccess(object):
         """
         sqlite初期化
         """
-        self.con = sqlite3.connect(self.setting['db_dir']+self.setting['db'])
+        self.con = sqlite3.connect(self.setting['host']+self.setting['db'])
         self.con.row_factory = sqlite3.Row
         self.con.isolation_level = None
         self.cur = self.con.cursor()

@@ -18,8 +18,6 @@ from session import Session
 from tag import *
 from db_access import DBAccess
 
-SALT = 'da894qwnchriuoqc489qoyt9ae'
-
 class LoginPage(Page):
     """
     ログインページ出力
@@ -37,7 +35,7 @@ class LoginPage(Page):
             return False
         if not username.isalnum() or not password.isalnum():
             return False
-        pass_hash = hashlib.sha256(SALT + username + ':' + password).hexdigest()
+        pass_hash = hashlib.sha256(self.setting['password']['salt'] + username + ':' + password).hexdigest()
         if len(self.dba.select(table='user_tbl', where={'username':username, 'password':pass_hash})) != 1:
             return False
         return True

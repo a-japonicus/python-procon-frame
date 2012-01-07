@@ -17,8 +17,6 @@ from session import Session
 from tag import *
 from db_access import DBAccess
 
-SALT = 'da894qwnchriuoqc489qoyt9ae'
-
 class RegistPage(Page):
     """
     ユーザ登録ページ出力
@@ -44,7 +42,7 @@ class RegistPage(Page):
             return False
         if len(self.dba.select(table='user_tbl', where={'username':username})) > 0:
             return False
-        pass_hash = hashlib.sha256(SALT + username + ':' + password).hexdigest()
+        pass_hash = hashlib.sha256(self.setting['password']['salt'] + username + ':' + password).hexdigest()
         if self.dba.insert('user_tbl', {'username':username, 'password':pass_hash}) != 1:
             self.dba.rollback()
             return False

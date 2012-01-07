@@ -11,17 +11,12 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import path
-import uuid
-import random
-
-#ガーベジコレクションの確率
-GC_PROB = 0.05
 
 class SessionHandler(object):
     """
     セッションハンドラ基本クラス
     """
-    def __init__(self):
+    def __init__(self, setting):
         pass
     def create(self, session_id):
         """
@@ -32,7 +27,7 @@ class SessionHandler(object):
         """
         セッション読み込み
         """
-        return {}
+        return None
     def write(self, session_id, data):
         """
         セッション書き込み
