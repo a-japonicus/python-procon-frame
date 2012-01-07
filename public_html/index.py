@@ -41,7 +41,6 @@ for k,v in conf.items('session_handler'):
 session_handler = DBSessionHandler(session_handler_setting)
 session = Session(cookie, session_handler, session_setting)
 
-
 response = Response(cookie)
 page = form.getvalue('page', 'top')
 
@@ -76,19 +75,20 @@ except:
     response_page = None
 
 # ページがなければ未実装と判定
-if response_page == None:
+if response_page is None:
     response_page = Page()
 
 # HTMLの組立て
 response.add_response_data(
-    HtmlTag(values=[
+    HtmlTag([
         HeadTag(TitleTag(u'高専プロコン競技練習場[%s]' % response_page.get_title())),
-        BodyTag(values=[
+        BodyTag([
             top,
             HRTag(),
             response_page.make_page(),
         ])
     ])
 )
+
 session.close()
 print (response)

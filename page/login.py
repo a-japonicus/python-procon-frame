@@ -39,7 +39,6 @@ class LoginPage(Page):
             if username.isalnum() and password.isalnum():
                 # ここで認証
                 if username == 'user' and password == 'pass':
-                    self.session.regenerate_id()
                     self.session.setvalue('login', True)
                     login = True
                     redirect = True

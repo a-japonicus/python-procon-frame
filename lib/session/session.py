@@ -25,6 +25,8 @@ import random
 
 # ガーベジコレクション確率
 GC_PROB = 0.05
+# クッキー内のセッションID名
+COOKIE_SESSIONID = 'SESSIONID'
 
 class Session(object):
     """
@@ -36,27 +38,26 @@ class Session(object):
         self.handler = handler
         self.serializer = pickle
         self.session_id = None
-        Exception(self.setting)
+        self.prev_session_id = []
         self.lifetime = int(self.setting['lifetime'], 10)
-        if 'SESSIONID' in cookie:
-            self.session_id=cookie['SESSIONID'].value
+        if COOKIE_SESSIONID in cookie:
+            self.session_id=cookie[COOKIE_SESSIONID].value
             self.load()
         else:
-            self.session_id = self.regenerate_id()
             self.data = {}
+        self.regenerate_id()
         if random.random() <= GC_PROB:
             self.handler.gc(self.lifetime)
     def load(self):
         data = self.handler.read(self.session_id, self.lifetime)
-        print(data)
         try:
-            self.data = self.serializer.loads(data.encode('utf-8'))
+            self.data = self.serializer.loads(data)
         except:
             self.data = {}
     def save(self):
-        if self.session_id == None:
-            self.session_id = self.regenerate_id()
-        if self.session_id != None:
+        if self.session_id is None:
+            self.regenerate_id()
+        if self.session_id is not None:
             self.handler.write(self.session_id, self.serializer.dumps(self.data))
 #            data = self.handler.read(self.session_id)
 #            print(self.data, self.serializer.loads(data.encode('utf-8')))
@@ -74,12 +75,17 @@ class Session(object):
                 break
             else:
                 session_id = None
-        return session_id
+        if session_id is not None:
+            self.prev_session_id.append(self.session_id)
+            self.session_id = session_id
     def get_session_id(self):
         return self.session_id
     def close(self):
-        expires = datetime.datetime.now()+datetime.timedelta(seconds=self.lifetime)
-        self.cookie['SESSIONID'] = self.session_id
-        self.cookie['SESSIONID']["expires"]=expires.strftime("%a, %d-%b-%Y %H:%M:%S JST")
-        self.save()
+        if self.session_id is not None:
+            expires = datetime.datetime.now()+datetime.timedelta(seconds=self.lifetime)
+            self.cookie[COOKIE_SESSIONID] = self.session_id
+            self.cookie[COOKIE_SESSIONID]["expires"]=expires.strftime("%a, %d-%b-%Y %H:%M:%S JST")
+            self.save()
+        for prev_id in self.session_id:
+            self.handler.delete(prev_id)
         self.handler.close()

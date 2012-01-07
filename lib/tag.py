@@ -56,7 +56,7 @@ class Tag(object):
             output += '>\n'
             tag_tab = indent + INDENT
             for v in self.values:
-                if (v == None):
+                if v is None:
                     continue
                 if isinstance(v, Tag):
                     out_str = v.make_output(tag_tab)
@@ -133,7 +133,7 @@ class ATag(Tag):
     aタグ
     """
     def __init__(self, href='', values=None, elements={}):
-        if values == None:
+        if values is None:
             values = href
         super(ATag, self).__init__('a', values, elements)
         self.set_element('href', href)
@@ -160,7 +160,7 @@ class InputTag(Tag):
     """
     def __init__(self, name=None, value=None, elements={}):
         super(InputTag, self).__init__('input', None, elements)
-        if name != None:
+        if name is not None:
             self.set_element('name', name)
         if value != None:
             self.set_element('value', value)
