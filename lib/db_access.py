@@ -46,13 +46,13 @@ class DBAccess(object):
             else:
                 raise DBInitError(self.setting)
         except:
-            pass
             raise DBInitError(self.setting)
     def setting_sqlite(self):
         """
         sqlite初期化
         """
-        self.con = sqlite3.connect(self.setting['host']+self.setting['db'])
+        database = self.setting['host']+self.setting['db']
+        self.con = sqlite3.connect(database)
         self.con.row_factory = sqlite3.Row
         self.con.isolation_level = None
         self.cur = self.con.cursor()
@@ -173,7 +173,8 @@ class DBAccess(object):
 if __name__ == '__main__':
     setting={
         'sql':'sqlite',
-        'db':'sample.db'
+        'host':'',
+        'db':':memory:'
     }
 
     dba = DBAccess(setting)

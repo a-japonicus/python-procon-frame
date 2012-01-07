@@ -54,6 +54,8 @@ page = form.getvalue('page', 'top')
 #トップ部分作成
 top = DivTag('top')
 top.add_value(H1Tag(u'高専プロコン競技練習場'))
+if session.getvalue('login', False):
+    top.add_value(PTag(u'ログイン中です'))
 top_links = [('top', u'トップ'), ('edit', u'問題作成'), ('bbs', u'掲示板'), ('about', u'取扱説明書')]
 if session.getvalue('login', False):
     top_links.append(('profile', u'プロフィール'))

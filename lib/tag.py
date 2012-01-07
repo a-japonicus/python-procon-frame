@@ -252,3 +252,31 @@ class HRTag(Tag):
     """
     def __init__(self, values=None, elements={}):
         super(HRTag, self).__init__('hr', values, elements)
+
+class TableTag(Tag):
+    """
+    tableのタグ
+    """
+    def __init__(self, values=None, elements={}):
+        super(TableTag, self).__init__('table', values, elements)
+
+class THTag(Tag):
+    """
+    thのタグ
+    """
+    def __init__(self, values=None, elements={}):
+        super(THTag, self).__init__('th', values, elements)
+
+class TRTag(Tag):
+    """
+    trのタグ
+    """
+    def __init__(self, values=None, elements={}):
+        super(TRTag, self).__init__('tr', values, elements)
+
+class TDTag(Tag):
+    """
+    tdのタグ
+    """
+    def __init__(self, values=None, elements={}):
+        super(TDTag, self).__init__('td', values, elements)

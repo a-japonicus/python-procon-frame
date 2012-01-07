@@ -13,8 +13,6 @@
 import path
 import time
 from time import gmtime
-import uuid
-import copy
 from session_handler import SessionHandler
 from db_access import DBAccess
 
@@ -85,25 +83,23 @@ class DBSessionHandler(SessionHandler):
         self.dba.commit()
 
 if __name__ == '__main__':
+    import uuid
     setting={
-        'sql_setting':{
-            'sql':'sqlite',
-            'db':'session.db',
-        },
-        'lifetime':1440
+        'sql':'sqlite',
+        'host':'',
+        'db':':memory:',
     }
-    dba = DBAccess(setting['sql_setting'])
-    handler = DBSessionHandler(setting)
+    lifetime = 1440
+    dba = DBAccess(setting)
     id = None
     for i in range(10):
-        data = handler.read(id)
+        data = handler.read(id, lifetime)
         if data is None:
             data = ''
         print (data)
         handler.delete(id)
         if id is None:
-            id = handler.generate_session_id()
+            id = '%s'%uuid.uuid4()
         data += 'A'
         handler.write(id, data)
-        print (dba.execute_sql('select * from session_tbl'))
 
