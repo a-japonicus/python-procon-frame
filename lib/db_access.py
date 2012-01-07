@@ -76,13 +76,16 @@ class DBAccess(object):
         """
         return self.prepared_list
 
-    def select(self, table, fields=['*'], where={}, limit=None, other=''):
+    def select(self, table, fields='*', where={}, limit=None, other=''):
         """
         select発行
         """
         sql = ''
         sql = 'SELECT '
-        sql += ','.join([f for f in fields])
+        if hasattr(fields, '__iter__'):
+            sql += ','.join([f for f in fields])
+        else:
+            sql += fields
         sql += ' FROM %s' % table
         self.clear_prepared_list()
         if len(where) > 0:

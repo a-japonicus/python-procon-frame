@@ -14,7 +14,7 @@ import path
 import time
 from time import gmtime
 from session_handler import SessionHandler
-from db_access import DBAccess
+from lib.db_access import DBAccess
 
 class DBSessionHandler(SessionHandler):
     """

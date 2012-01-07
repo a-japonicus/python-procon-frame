@@ -12,7 +12,7 @@
 #-------------------------------------------------------------------------------
 import path
 from Cookie import SimpleCookie
-from tag import *
+from lib.tag import *
 
 class Response(object):
     """

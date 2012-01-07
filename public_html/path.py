@@ -16,9 +16,3 @@ import os
 # rootディレクトリ(public_htmlの親ディレクトリ)
 ROOT_DIR = os.path.join(os.path.dirname(__file__), '../')
 sys.path.append(ROOT_DIR)
-# libディレクトリのパス
-sys.path.append(os.path.join(ROOT_DIR, './lib'))
-# sesisonディレクトリのパス
-sys.path.append(os.path.join(ROOT_DIR, './lib/session'))
-# pageディレクトリのパス
-sys.path.append(os.path.join(ROOT_DIR, './page'))

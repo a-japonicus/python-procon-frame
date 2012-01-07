@@ -16,10 +16,10 @@ import os
 import atexit
 import ConfigParser
 from Cookie import SimpleCookie
-from response import Response
-from session import Session
-from tag import *
-from page import Page
+from lib.response import Response
+from lib.session.session import Session
+from lib.tag import *
+from page.page import Page
 
 form = cgi.FieldStorage()
 cookie=SimpleCookie(os.environ.get('HTTP_COOKIE',''))
@@ -40,10 +40,10 @@ for section in conf.sections():
 # セッション
 session_handler = None
 if setting['session']['handler'] == 'file':
-    from file_session_handler import FileSessionHandler
+    from lib.session.file_session_handler import FileSessionHandler
     session_handler = FileSessionHandler(setting['session'])
 elif setting['session']['handler'] == 'database':
-    from db_session_handler import DBSessionHandler
+    from lib.session.db_session_handler import DBSessionHandler
     session_handler = DBSessionHandler(setting['database'])
 session = Session(cookie, session_handler, setting['session'])
 
@@ -56,13 +56,7 @@ top = DivTag('top')
 top.add_value(H1Tag(u'高専プロコン競技練習場'))
 if session.getvalue('login', False):
     top.add_value(PTag(u'ログイン中です'))
-top_links = [('top', u'トップ'), ('edit', u'問題作成'), ('bbs', u'掲示板'), ('about', u'取扱説明書')]
-if session.getvalue('login', False):
-    top_links.append(('profile', u'プロフィール'))
-    top_links.append(('logout', u'ログアウト'))
-else:
-    top_links.append(('regist', u'登録'))
-    top_links.append(('login', u'ログイン'))
+top_links = [('top', u'トップ'), ('edit', u'問題作成'), ('bbs', u'掲示板'), ('about', u'取扱説明書'), ('profile', u'プロフィール'), ('regist', u'登録'), ('logout', u'ログアウト'), ('login', u'ログイン'), ('admin', u'管理画面')]
 for p in top_links:
 #    if page != p[0]:
         top.add_value(u'[%s]' % ATag('./index.py?page=%s'%p[0], p[1]))
@@ -75,7 +69,7 @@ error_info = ""
 try:
     # ページクラスを動的インポート
     page_class_name = page.capitalize()+'Page'
-    page_class = getattr(__import__(page), page_class_name)
+    page_class = getattr(__import__('page.'+page, {}, {}, page_class_name), page_class_name)
     response_page = page_class(session, setting, form)
 except:
     import sys

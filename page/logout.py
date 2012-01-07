@@ -12,8 +12,8 @@
 #-------------------------------------------------------------------------------
 import path
 from page import Page
-from session import Session
-from tag import *
+from lib.session.session import Session
+from lib.tag import *
 
 class LogoutPage(Page):
     """

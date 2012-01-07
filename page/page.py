@@ -11,8 +11,8 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import path
-from tag import *
-from session import Session
+from lib.tag import *
+from lib.session.session import Session
 
 class Page(object):
     """

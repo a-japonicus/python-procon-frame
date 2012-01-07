@@ -14,9 +14,9 @@
 import path
 import hashlib
 from page import Page
-from session import Session
-from tag import *
-from db_access import DBAccess
+from lib.session.session import Session
+from lib.tag import *
+from lib.db_access import DBAccess
 
 class LoginPage(Page):
     """
@@ -60,6 +60,7 @@ class LoginPage(Page):
             if self.login(username, password):
                 # ログイン成功
                 self.session.setvalue('login', True)
+                self.session.setvalue('username', username)
                 redirect = True
                 login_failed = False
 

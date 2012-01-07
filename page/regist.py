@@ -12,10 +12,11 @@
 #-------------------------------------------------------------------------------
 import path
 import hashlib
+import uuid
 from page import Page
-from session import Session
-from tag import *
-from db_access import DBAccess
+from lib.session.session import Session
+from lib.tag import *
+from lib.db_access import DBAccess
 
 class RegistPage(Page):
     """
@@ -29,7 +30,7 @@ class RegistPage(Page):
         self.create_table()
     def create_table(self):
         try:
-            self.dba.execute_sql('CREATE TABLE user_tbl(user_id INTEGER PRIMARY KEY, username CHAR(32), password CHAR(64), login_time INTEGER, regist_time INTEGER)')
+            self.dba.execute_sql('CREATE TABLE user_tbl(user_id INTEGER PRIMARY KEY, username CHAR(32) UNIQUE, password CHAR(64), nickname CHAR(32), hash CHAR(64) UNIQUE, login_time INTEGER, regist_time INTEGER)')
         except:
             pass
     def regist(self, username, password):
@@ -43,7 +44,8 @@ class RegistPage(Page):
         if len(self.dba.select(table='user_tbl', where={'username':username})) > 0:
             return False
         pass_hash = hashlib.sha256(self.setting['password']['salt'] + username + ':' + password).hexdigest()
-        if self.dba.insert('user_tbl', {'username':username, 'password':pass_hash}) != 1:
+        userhash = hashlib.md5(str(uuid.uuid4())).hexdigest()
+        if self.dba.insert('user_tbl', {'username':username, 'password':pass_hash, 'nickname':u'名無しさん', 'hash':userhash}) != 1:
             self.dba.rollback()
             return False
         self.dba.commit()
@@ -69,6 +71,8 @@ class RegistPage(Page):
             regist_failed = True
             if password == retype_password  and  self.regist(username, password):
                 # ここで登録
+                self.session.setvalue('login', True)
+                self.session.setvalue('username', username)
                 regist = True
                 regist_failed = False
 
