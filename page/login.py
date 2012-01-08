@@ -16,7 +16,8 @@ import hashlib
 from page import Page
 from lib.session.session import Session
 from lib.tag import *
-from lib.db_access import DBAccess
+from lib import DBAccess
+from lib.user import User
 
 class LoginPage(Page):
     """
@@ -26,7 +27,7 @@ class LoginPage(Page):
         super(LoginPage, self).__init__(session, setting, form_data)
         self.set_title(u'ログイン')
         self.set_session(session)
-        self.dba = DBAccess(setting['database'])
+        self.dba = DBAccess.order()
     def login(self, username, password):
         """
         ログイン認証
@@ -35,10 +36,7 @@ class LoginPage(Page):
             return False
         if not username.isalnum() or not password.isalnum():
             return False
-        pass_hash = hashlib.sha256(self.setting['password']['salt'] + username + ':' + password).hexdigest()
-        if len(self.dba.select(table='user_tbl', where={'username':username, 'password':pass_hash})) != 1:
-            return False
-        return True
+        return 
     def make_page(self):
         """
         ページの処理
@@ -57,7 +55,8 @@ class LoginPage(Page):
             login = True
         elif mode == 'login':
             login_failed = True
-            if self.login(username, password):
+            user = User(username, password, self.setting['password']['salt'])
+            if user.exist():
                 # ログイン成功
                 self.session.setvalue('login', True)
                 self.session.setvalue('username', username)

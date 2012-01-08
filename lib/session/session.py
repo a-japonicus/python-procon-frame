@@ -56,6 +56,7 @@ class Session(object):
         try:
             self.data = self.serializer.loads(data)
         except:
+            self.regenerate_id()
             self.data = {}
     def save(self):
         """
@@ -80,7 +81,6 @@ class Session(object):
         """
         self.data[key] = value
     def getvalue(self, key, default=None):
-
         """
         セッションから値取得
         """

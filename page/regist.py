@@ -16,7 +16,7 @@ import uuid
 from page import Page
 from lib.session.session import Session
 from lib.tag import *
-from lib.db_access import DBAccess
+from lib import DBAccess
 
 class RegistPage(Page):
     """
@@ -26,7 +26,7 @@ class RegistPage(Page):
         super(RegistPage, self).__init__(session, setting, form_data)
         self.set_title(u'登録')
         self.set_session(session)
-        self.dba = DBAccess(setting['database'])
+        self.dba = DBAccess.order()
         self.create_table()
     def create_table(self):
         try:

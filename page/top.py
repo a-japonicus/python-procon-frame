@@ -15,7 +15,7 @@ import hashlib
 from page import Page
 from lib.session.session import Session
 from lib.tag import *
-from lib.db_access import DBAccess
+from lib import DBAccess
 
 class TopPage(Page):
     """
@@ -25,7 +25,7 @@ class TopPage(Page):
         super(TopPage, self).__init__(session, setting, form_data)
         self.set_title(u'トップ')
         self.set_session(session)
-        self.dba = DBAccess(setting['database'])
+        self.dba = DBAccess.order()
     def make_page(self):
         """
         ページの処理

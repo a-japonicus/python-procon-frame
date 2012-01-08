@@ -20,6 +20,7 @@ from lib.response import Response
 from lib.session.session import Session
 from lib.tag import *
 from page.page import Page
+from lib import DBAccess
 
 form = cgi.FieldStorage()
 cookie=SimpleCookie(os.environ.get('HTTP_COOKIE',''))
@@ -37,15 +38,19 @@ for section in conf.sections():
     for option in conf.options(section):
         setting[section][option] = conf.get(section, option)
 
+#DBアクセサ生成
+DBAccess.create(setting['database'])
+
 # セッション
 session_handler = None
 if setting['session']['handler'] == 'file':
-    from lib.session.file_session_handler import FileSessionHandler
+    from lib.session.FileSessionHandler import FileSessionHandler
     session_handler = FileSessionHandler(setting['session'])
 elif setting['session']['handler'] == 'database':
-    from lib.session.db_session_handler import DBSessionHandler
-    session_handler = DBSessionHandler(setting['database'])
+    from lib.session.DBSessionHandler import DBSessionHandler
+    session_handler = DBSessionHandler(setting['session'])
 session = Session(cookie, session_handler, setting['session'])
+
 
 # レスポンス作成開始
 response = Response(cookie)
@@ -65,20 +70,22 @@ for p in top_links:
 
 # ページクラスを取得
 response_page = None
-error_info = ""
+error_info = []
 try:
     # ページクラスを動的インポート
     page_class_name = page.capitalize()+'Page'
     page_class = getattr(__import__('page.'+page, {}, {}, page_class_name), page_class_name)
     response_page = page_class(session, setting, form)
+    page_data = response_page.make_page()
 except:
     import sys
-    error_info = sys.exc_info()
+    error_info.append(sys.exc_info())
     response_page = None
 
 # ページクラスが読み込めなければ未実装と判定
 if response_page is None:
     response_page = Page(session, setting, form)
+    page_data = response_page.make_page()
 
 # HTMLの組立て
 response.add_response_data(
@@ -88,7 +95,7 @@ response.add_response_data(
             CenterTag([
                 top,
                 HRTag(),
-                response_page.make_page(),
+                page_data,
             ])
         ])
     ])

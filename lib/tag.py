@@ -45,7 +45,8 @@ class Tag(object):
         output = indent
         # タグを作成
         output += '<' + self.tag
-        output += ''.join([' %s="%s"' % (k,v) for k,v in self.elements.items()])
+        output += ''.join([' %s="%s"' % (k,v) for k,v in self.elements.items() if v is not None])
+        output += ''.join([' %s' % k for k,v in self.elements.items() if v is None])
 
         value_size = len(self.values)
         if value_size == 1  and  (isinstance(self.values[0], unicode) or isinstance(self.values[0], str)):
@@ -66,7 +67,7 @@ class Tag(object):
             output += '%s</%s>' % (indent, self.tag)
         else:
             # valueがなければ閉じる
-            output += '/>'
+            output += ' />'
         return output
     def __str__(self):
         return self.make_output()
@@ -196,6 +197,16 @@ class TextTag(InputTag):
     def __init__(self, name=None, value=None, elements={}):
         super(TextTag, self).__init__(name, value, elements)
         self.set_element('type', 'text')
+
+class CheckBoxTag(InputTag):
+    """
+    checkboxタグ
+    """
+    def __init__(self, name=None, value=None, checked=False, elements={}):
+        super(CheckBoxTag, self).__init__(name, value, elements)
+        self.set_element('type', 'checkbox')
+        if checked:
+            self.set_element('checked', None)
 
 class PTag(Tag):
     """
