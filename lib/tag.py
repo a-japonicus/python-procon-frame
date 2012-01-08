@@ -204,6 +204,13 @@ class PTag(Tag):
     def __init__(self, values=None, elements={}):
         super(PTag, self).__init__('p', values, elements)
 
+class CenterTag(Tag):
+    """
+    centerタグ
+    """
+    def __init__(self, values=None, elements={}):
+        super(CenterTag, self).__init__('center', values, elements)
+
 class H1Tag(Tag):
     """
     h1のタグ
@@ -253,12 +260,22 @@ class HRTag(Tag):
     def __init__(self, values=None, elements={}):
         super(HRTag, self).__init__('hr', values, elements)
 
+class CaptionTag(Tag):
+    """
+    captionのタグ
+    """
+    def __init__(self, values=None, elements={}):
+        super(CaptionTag, self).__init__('caption', values, elements)
+
 class TableTag(Tag):
     """
     tableのタグ
     """
-    def __init__(self, values=None, elements={}):
-        super(TableTag, self).__init__('table', values, elements)
+    def __init__(self, caption=None, values=None, elements={}):
+        super(TableTag, self).__init__('table', None, elements)
+        if caption is not None:
+            self.add_value(CaptionTag(caption))
+        self.add_value(values)
 
 class THTag(Tag):
     """

@@ -22,6 +22,12 @@ class DBInitError(Exception):
     """
     pass
 
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
 class DBAccess(object):
     """
     DBのアクセスクラス
@@ -53,7 +59,7 @@ class DBAccess(object):
         """
         database = self.setting['host']+self.setting['db']
         self.con = sqlite3.connect(database)
-        self.con.row_factory = sqlite3.Row
+        self.con.row_factory = dict_factory
         self.con.isolation_level = None
         self.cur = self.con.cursor()
         self.execute_sql('pragma count_changes=1')
@@ -67,7 +73,7 @@ class DBAccess(object):
         辞書セット
         返り値は置き換え文字
         """
-        s = '%s' % len(self.prepared_list)
+        s = '%d' % len(self.prepared_list)
         self.prepared_list[s] = d
         return s
     def get_prepared_list(self):
@@ -114,7 +120,7 @@ class DBAccess(object):
 
         sql += ' ' + other
         res = self.execute_sql(sql, self.get_prepared_list())
-        return res[0][0]
+        return res[0]['rows updated']
 
     def insert(self, table, values={}, other=''):
         """
@@ -133,7 +139,7 @@ class DBAccess(object):
 
         sql += ' ' + other
         res = self.execute_sql(sql, self.get_prepared_list())
-        return res[0][0]
+        return res[0]['rows inserted']
 
     def delete(self, table, where={}, other=''):
         """
@@ -148,7 +154,7 @@ class DBAccess(object):
 
         sql += ' ' + other
         res = self.execute_sql(sql, self.get_prepared_list())
-        return res[0][0]
+        return res[0]['rows deleted']
 
     def execute_sql(self, sql, data={}):
         """
@@ -190,12 +196,11 @@ if __name__ == '__main__':
     data = {'a':'test', 'b':'test2'}
     print (dba.insert(table='session_tbl', values={'session_id':'0'}))
     print (dba.update(table='session_tbl', sets={'data':pickle.dumps(data)}))
+    print (dba.delete(table='session_tbl'))
     print(data)
     d = dba.select(table='session_tbl', fields=['data'], where={'session_id':'0'})
     for v in d:
         print (v)
-    print (pickle.dumps(data),d[0]['data'])
-    print (pickle.loads(d[0]['data'].encode('utf-8')))
     dba.commit()
 #    except:
 #        print ('Failed')

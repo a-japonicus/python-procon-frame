@@ -87,8 +87,10 @@ class LoginPage(Page):
             page.add_value([
                 PTag(u'ログインすると全ての機能を使用できます。未登録の方は%sから登録してください。' % ATag('./index.py?page=regist', u'こちら')),
                 FormTag(action='./index.py?page=login', values=[
-                    u'ユーザ名:%s<br>' % TextTag(name='username', value=data['username']),
-                    u'パスワード:%s<br>' % PasswordTag(name='password', value=''),
+                    TableTag([
+                        TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=data['username']))]),
+                        TRTag([TDTag(u'パスワード'), TDTag(':'), TDTag('%s' % PasswordTag(name='password', value=''))]),
+                    ]),
                     HiddenTag(name='mode', value='login'),
                     SubmitTag(value=u'ログイン'),
                 ])

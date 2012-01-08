@@ -85,9 +85,11 @@ response.add_response_data(
     HtmlTag([
         HeadTag(TitleTag(u'高専プロコン競技練習場[%s]' % response_page.get_title())),
         BodyTag([
-            top,
-            HRTag(),
-            response_page.make_page(),
+            CenterTag([
+                top,
+                HRTag(),
+                response_page.make_page(),
+            ])
         ])
     ])
 )

@@ -100,9 +100,11 @@ class RegistPage(Page):
             page.add_value([
                 PTag(u'登録すると全ての機能を使用できます。登録済みの方は%sからログインしてください。' % ATag('./index.py?page=login', u'こちら')),
                 FormTag(action='./index.py?page=regist', values=[
-                    u'ユーザ名:%s<br>' % TextTag(name='username', value=data['username']),
-                    u'パスワード:%s<br>' % PasswordTag(name='password', value=''),
-                    u'パスワード(再確認):%s<br>' % PasswordTag(name='retype_password', value=''),
+                    TableTag([
+                        TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=data['username']))]),
+                        TRTag([TDTag(u'パスワード'), TDTag(':'), TDTag('%s' % PasswordTag(name='password', value=''))]),
+                        TRTag([TDTag(u'パスワード(再確認)'), TDTag(':'), TDTag('%s' % PasswordTag(name='retype_password', value=''))]),
+                    ]),
                     HiddenTag(name='mode', value='regist'),
                     SubmitTag(value=u'登録'),
                 ])
