@@ -14,6 +14,7 @@ import path
 import cgi
 import os
 import atexit
+from xml.sax.saxutils import *
 import ConfigParser
 from Cookie import SimpleCookie
 from lib.response import Response
@@ -41,6 +42,19 @@ for section in conf.sections():
 #DBアクセサ生成
 DBAccess.create(setting['database'])
 
+#テーブル作成
+if setting['database']['create'] == 'On':
+    dba = DBAccess.order()
+    sqls = [
+        'CREATE TABLE session_tbl(session_id CHAR(40) UNIQUE, data BLOB, update_time INTEGER)',
+        'CREATE TABLE user_tbl(user_id INTEGER PRIMARY KEY, username CHAR(32) UNIQUE, password CHAR(64), nickname CHAR(32), hash CHAR(64) UNIQUE, login_time INTEGER, create_time INTEGER)',
+        'CREATE TABLE problem_tbl(problem_id INTEGER PRIMARY KEY, user_id INTEGER, title CHAR(64), data TEXT, create_time INTEGER)',
+    ]
+    for s in sqls:
+        try:
+            dba.execute_sql(s)
+        except:
+            pass
 # セッション
 session_handler = None
 if setting['session']['handler'] == 'file':
@@ -106,4 +120,11 @@ print (response)
 
 # デバッグ出力
 if setting['debug']['enable'] == 'On':
-    print (error_info)
+    for info in error_info:
+        print (escape(str(info)).encode('utf-8'))
+        print('<br>')
+    for flist in form.list:
+        print (escape(str(flist)).encode('utf-8'))
+        print('<br>')
+    for k,v in os.environ.items():
+        print (k,v)

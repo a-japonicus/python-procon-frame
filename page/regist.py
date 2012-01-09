@@ -11,12 +11,12 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import path
-import hashlib
-import uuid
+from xml.sax.saxutils import *
 from page import Page
 from lib.session.session import Session
 from lib.tag import *
 from lib import DBAccess
+from lib.user import User
 
 class RegistPage(Page):
     """
@@ -27,29 +27,20 @@ class RegistPage(Page):
         self.set_title(u'登録')
         self.set_session(session)
         self.dba = DBAccess.order()
-        self.create_table()
-    def create_table(self):
-        try:
-            self.dba.execute_sql('CREATE TABLE user_tbl(user_id INTEGER PRIMARY KEY, username CHAR(32) UNIQUE, password CHAR(64), nickname CHAR(32), hash CHAR(64) UNIQUE, login_time INTEGER, regist_time INTEGER)')
-        except:
-            pass
     def regist(self, username, password):
         """
         登録
         """
-        if username is None or password is None:
+        user = User(username)
+        if user.exist():
             return False
-        if not username.isalnum() or not password.isalnum():
+        user.setvalue('username', username)
+        user.setvalue('nickname', u'名無しさん')
+        user.reset_hash()
+        if not user.reset_password(new_password=password, salt=self.setting['password']['salt'], force=True):
             return False
-        if len(self.dba.select(table='user_tbl', where={'username':username})) > 0:
-            return False
-        pass_hash = hashlib.sha256(self.setting['password']['salt'] + username + ':' + password).hexdigest()
-        userhash = hashlib.md5(str(uuid.uuid4())).hexdigest()
-        if self.dba.insert('user_tbl', {'username':username, 'password':pass_hash, 'nickname':u'名無しさん', 'hash':userhash}) != 1:
-            self.dba.rollback()
-            return False
-        self.dba.commit()
-        return True
+        return user.insert()
+        
     def make_page(self):
         """
         ページの処理
@@ -101,7 +92,7 @@ class RegistPage(Page):
                 PTag(u'登録すると全ての機能を使用できます。登録済みの方は%sからログインしてください。' % ATag('./index.py?page=login', u'こちら')),
                 FormTag(action='./index.py?page=regist', values=[
                     TableTag([
-                        TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=data['username']))]),
+                        TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=escape(data['username'])))]),
                         TRTag([TDTag(u'パスワード'), TDTag(':'), TDTag('%s' % PasswordTag(name='password', value=''))]),
                         TRTag([TDTag(u'パスワード(再確認)'), TDTag(':'), TDTag('%s' % PasswordTag(name='retype_password', value=''))]),
                     ]),

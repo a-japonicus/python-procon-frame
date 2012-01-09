@@ -23,16 +23,6 @@ class DBSessionHandler(SessionHandler):
     def __init__(self, setting):
         self.setting = setting
         self.dba = DBAccess.order()
-        self._create_tbl()
-    def _create_tbl(self):
-        """
-        テーブル生成
-        """
-        try:
-            self.dba.execute_sql('CREATE TABLE session_tbl(session_id CHAR(40) UNIQUE, data BLOB, update_time INTEGER)')
-            self.dba.commit()
-        except:
-            pass
     def create(self, session_id):
         """
         セッション生成

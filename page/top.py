@@ -12,6 +12,7 @@
 #-------------------------------------------------------------------------------
 import path
 import hashlib
+from xml.sax.saxutils import *
 from page import Page
 from lib.session.session import Session
 from lib.tag import *

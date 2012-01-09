@@ -13,6 +13,7 @@
 import path
 import hashlib
 import uuid
+from xml.sax.saxutils import *
 from page import Page
 from lib.session.session import Session
 from lib.tag import *
@@ -112,10 +113,10 @@ class ProfilePage(Page):
         else:
             page.add_value([
                 TableTag([
-                    TRTag([TDTag(u'ユーザID'), TDTag(':'), TDTag(data['userid'])]),
-                    TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag(data['username'])]),
-                    TRTag([TDTag(u'ニックネーム'), TDTag(':'), TDTag(data['nickname'])]),
-                    TRTag([TDTag(u'ハッシュ'), TDTag(':'), TDTag(data['userhash'])]),
+                    TRTag([TDTag(u'ユーザID'), TDTag(':'), TDTag(escape(data['userid']))]),
+                    TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag(escape(data['username']))]),
+                    TRTag([TDTag(u'ニックネーム'), TDTag(':'), TDTag(escape(data['nickname']))]),
+                    TRTag([TDTag(u'ハッシュ'), TDTag(':'), TDTag(escape(data['userhash']))]),
                 ]),
                 TableTag(TRTag([
                     FormTag(action='./index.py?page=profile', values=[
@@ -131,7 +132,7 @@ class ProfilePage(Page):
             if data['edit_status'] == EDIT_CORRECT:
                 page.add_value(PTag(u'更新しました'))
             elif data['edit_status'] == EDIT_FAILED:
-                page.add_value(PTag(u'編集に失敗しました'))
+                page.add_value(PTag(u'更新に失敗しました'))
 
         return page
 

@@ -12,10 +12,12 @@
 #-------------------------------------------------------------------------------
 import path
 import hashlib
+from xml.sax.saxutils import *
 from page import Page
 from lib.session.session import Session
 from lib.tag import *
 from lib import DBAccess
+from lib.user import User
 
 class AdminPage(Page):
     """
@@ -35,7 +37,7 @@ class AdminPage(Page):
         password = self.form_data.getvalue('password')
         login = self.session.getvalue('admin', False)
         enable = self.setting['admin']['enable'] == 'On'
-        user_tbl = []
+        users = []
         login_faled = False
 
         if enable:
@@ -48,15 +50,19 @@ class AdminPage(Page):
             elif mode == 'logout':
                 self.session.setvalue('admin', False)
                 login = False
+            elif mode == 'reset_password':
+                user = User(username)
+                user.reset_password(new_password=password, salt=self.setting['password']['salt'], force=True)
+                user.update()
         if login:
-            user_tbl = self.dba.select('user_tbl', '*')
+            users = self.dba.select('user_tbl', '*')
 
         # テンプレ―ト用データ
         template_data = {}
         template_data['enable'] = enable
         template_data['login'] = login
         template_data['login_failed'] = login_faled
-        template_data['user_tbl'] = user_tbl
+        template_data['users'] = users
 
         return self.template(template_data)
 
@@ -85,19 +91,27 @@ class AdminPage(Page):
                 FormTag(action='./index.py?page=admin', values=[
                     HiddenTag(name='mode', value='logout'),
                     SubmitTag(value=u'ログアウト'),
-#                    ATag('./index.py?page=admin', u'ログアウト')
                 ])
             ])
             # user_tbl
             user_tbl = TableTag(caption=u'user_tbl', elements={'border':3})
             tr = TRTag(elements={'bgcolor':'gray'})
-            for k,v in data['user_tbl'][0].items():
-                tr.add_value(TDTag(u'%s'%k))
+            user_tbl_fields = ['user_id', 'username', 'nickname', 'hash', 'password', 'login_time', 'create_time']
+            for field in user_tbl_fields:
+                tr.add_value(TDTag(str(field)))
+            tr.add_value([
+                TDTag(' '),
+                TDTag(u'パスワードリセット'),
+            ])
             user_tbl.add_value(tr)
-            for user in data['user_tbl']:
+            for user in data['users']:
                 tr = TRTag()
-                for k,v in user.items():
-                    tr.add_value(TDTag(u'%s'%v))
+                for field in user_tbl_fields:
+                    tr.add_value(TDTag(escape(u'%s'%user[field])))
+                tr.add_value([
+                    TDTag(' '),
+                    FormTag(action='./index.py?page=admin', values=TDTag([TextTag('password'),HiddenTag('mode','reset_password'),HiddenTag('username',user['username']),SubmitTag(value=u'リセット')]))
+                ])
                 user_tbl.add_value(tr)
             page.add_value(user_tbl)
 

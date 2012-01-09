@@ -67,7 +67,11 @@ class Tag(object):
             output += '%s</%s>' % (indent, self.tag)
         else:
             # valueがなければ閉じる
-            output += ' />'
+            if self.tag in ['textarea']:
+                # 閉じタグが必要なものはつける
+                output += '></%s>' % self.tag
+            else:
+                output += '/>'
         return output
     def __str__(self):
         return self.make_output()
@@ -104,6 +108,13 @@ class BodyTag(Tag):
     """
     def __init__(self, values=None, elements={}):
         super(BodyTag, self).__init__('body', values, elements)
+
+class BRTag(Tag):
+    """
+    brタグ
+    """
+    def __init__(self):
+        super(BRTag, self).__init__('br')
 
 class MetaTag(Tag):
     """
@@ -197,6 +208,15 @@ class TextTag(InputTag):
     def __init__(self, name=None, value=None, elements={}):
         super(TextTag, self).__init__(name, value, elements)
         self.set_element('type', 'text')
+
+class TextAreaTag(Tag):
+    """
+    textareaタグ
+    """
+    def __init__(self, name=None, values=None, elements={}):
+        super(TextAreaTag, self).__init__('textarea', values, elements)
+        if name is not None:
+            self.set_element('name', name)
 
 class CheckBoxTag(InputTag):
     """

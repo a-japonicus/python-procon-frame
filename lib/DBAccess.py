@@ -16,23 +16,30 @@ from time import gmtime
 import sqlite3
 import copy
 
-# シングルトン
-_dba = None
-def create(setting):
-    global _dba
-    if _dba == None:
-        _dba = DBAccess(setting)
-    return _dba
-def order():
-    global _dba
-    return _dba
-
-
 class DBInitError(Exception):
     """
     DBの初期化エラー
     """
     pass
+
+# シングルトン
+_dba = None
+def create(setting):
+    """
+    DBAccessのインスタンス作成
+    """
+    global _dba
+    if _dba == None:
+        _dba = DBAccess(setting)
+    return _dba
+def order():
+    """
+    DBAccessのシングルトン
+    """
+    global _dba
+    if _dba is None:
+        raise DBInitError(u'DBAccess未初期化')
+    return _dba
 
 def dict_factory(cursor, row):
     d = {}

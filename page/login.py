@@ -13,6 +13,7 @@
 #-------------------------------------------------------------------------------
 import path
 import hashlib
+from xml.sax.saxutils import *
 from page import Page
 from lib.session.session import Session
 from lib.tag import *
@@ -87,7 +88,7 @@ class LoginPage(Page):
                 PTag(u'ログインすると全ての機能を使用できます。未登録の方は%sから登録してください。' % ATag('./index.py?page=regist', u'こちら')),
                 FormTag(action='./index.py?page=login', values=[
                     TableTag([
-                        TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=data['username']))]),
+                        TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=escape(data['username'])))]),
                         TRTag([TDTag(u'パスワード'), TDTag(':'), TDTag('%s' % PasswordTag(name='password', value=''))]),
                     ]),
                     HiddenTag(name='mode', value='login'),

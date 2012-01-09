@@ -26,7 +26,6 @@ class Page(object):
             self.form_data = cgi.FieldStorage()
         else:
             self.form_data = form_data
-        self.page = DivTag('page')
     def set_session(self, session):
         self.session = session
     def get_title(self):

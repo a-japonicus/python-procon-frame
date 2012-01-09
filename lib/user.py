@@ -21,8 +21,7 @@ class User(object):
     def __init__(self, username, password=None, salt=''):
         self.dba = DBAccess.order()
         self.data = {}
-        if username.isalnum():
-            self.select(username, password, salt)
+        self.select(username, password, salt)
     def exist(self):
         return self.getvalue('username') is not None
     def setvalue(self, key, value):
@@ -77,17 +76,21 @@ class User(object):
                     self.data['hash'] = hash
                     return True
         return False
-    def reset_password(self, old_password, new_password, salt=''):
-        if not old_password.isalnum() or not new_password.isalnum():
-            return False
+    def reset_password(self, old_password=None, new_password=None, salt='', force=False):
         if not self.exist():
             return False
-        old_pass_hash = self.password_hash(self.data['username'], old_password, salt)
-        if self.data['password'] != old_pass_hash:
+        if not force:
+            if old_password is None or not old_password.isalnum():
+                return False
+            old_pass_hash = self.password_hash(self.data['username'], old_password, salt)
+            if self.data['password'] != old_pass_hash:
+                return False
+
+        if new_password is None or not new_password.isalnum():
             return False
         new_pass_hash = self.password_hash(self.data['username'], new_password, salt)
-        if self.dba.update('user_tbl',{'password':new_pass_hash}, {'username':self.data['username']}) != 1:
-            return False
+#        if self.dba.update('user_tbl',{'password':new_pass_hash}, {'username':self.data['username']}) != 1:
+#            return False
         self.data['password'] = new_pass_hash
         return True
     def password_hash(self, username, password, salt=''):
