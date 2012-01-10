@@ -13,7 +13,6 @@
 import path
 from xml.sax.saxutils import *
 from page import Page
-from lib.session.session import Session
 from lib.tag import *
 from lib import DBAccess
 from lib.user import User
@@ -86,11 +85,11 @@ class RegistPage(Page):
         if data['login']:
             page.add_value(PTag(u'ログインしています'))
         elif data['regist']:
-            page.add_value(PTag(u'登録しました。%sからプロフィールの変更を行うことができます。ニックネームを設定することをお勧めします。' % ATag('./index.py?page=profile', u'こちら')))
+            page.add_value(PTag(u'登録しました。%sからプロフィールの変更を行うことができます。ニックネームを設定することをお勧めします。' % ATag('./profile', u'こちら')))
         else:
             page.add_value([
-                PTag(u'登録すると全ての機能を使用できます。登録済みの方は%sからログインしてください。' % ATag('./index.py?page=login', u'こちら')),
-                FormTag(action='./index.py?page=regist', values=[
+                PTag(u'登録すると全ての機能を使用できます。登録済みの方は%sからログインしてください。' % ATag('./login', u'こちら')),
+                FormTag(action='./regist', values=[
                     TableTag([
                         TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=escape(data['username'])))]),
                         TRTag([TDTag(u'パスワード'), TDTag(':'), TDTag('%s' % PasswordTag(name='password', value=''))]),

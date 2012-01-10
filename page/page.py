@@ -12,7 +12,6 @@
 #-------------------------------------------------------------------------------
 import path
 from lib.tag import *
-from lib.session.session import Session
 
 class Page(object):
     """

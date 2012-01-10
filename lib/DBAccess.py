@@ -71,7 +71,8 @@ class DBAccess(object):
             else:
                 raise DBInitError(self.setting)
         except:
-            raise DBInitError(self.setting)
+            import os
+            raise DBInitError(os.getcwd(),self.setting)
     def setting_sqlite(self):
         """
         sqlite初期化

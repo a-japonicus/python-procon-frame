@@ -13,7 +13,6 @@
 import path
 from xml.sax.saxutils import *
 from page import Page
-from lib.session.session import Session
 from lib.tag import *
 
 class LogoutPage(Page):
@@ -48,7 +47,7 @@ class LogoutPage(Page):
             page.add_value(PTag(u'ログインしていません'))
         else:
             page.add_value(PTag(u'ログアウトしました'))
-            page.add_value(RedirectTag('./index.py?page=top', 5))
+            page.add_value(RedirectTag('./top', 5))
         return page
 
 

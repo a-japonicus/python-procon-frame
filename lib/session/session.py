@@ -16,26 +16,32 @@ import pickle
 import json
 import uuid
 import hashlib
-from Cookie import SimpleCookie
 import random
 
 # ガーベジコレクション確率
 GC_PROB = 0.05
-# クッキー内のセッションID名
-COOKIE_SESSIONID = 'SESSIONID'
+
+_instance = None
+def create(setting, session_id=None):
+    global _instance
+    if _instance == None:
+        _instance = Session(setting, session_id)
+    return _instance
+def order():
+    global _instance
+    return _instance
 
 class Session(object):
     """
     セッション管理クラス
     """
-    def __init__(self, handler, setting, session_id=None):
+    def __init__(self, setting, session_id=None):
         self.setting = setting
-        self.handler = handler
         self.serializer = pickle
         self.session_id = session_id
         self.prev_session_id = []
         self.lifetime = int(self.setting['lifetime'], 10)
-        self.handler.open()
+        self.create_handler()
         if self.session_id is not None:
             self.load()
         else:
@@ -43,6 +49,19 @@ class Session(object):
         self.regenerate_id()
         if random.random() <= GC_PROB:
             self.handler.gc(self.lifetime)
+    def create_handler(self):
+        """
+        ハンドラ生成
+        """
+        handler = None
+        if self.setting['handler'] == 'file':
+            from lib.session.FileSessionHandler import FileSessionHandler
+            handler = FileSessionHandler(self.setting)
+        elif self.setting['handler'] == 'database':
+            from lib.session.DBSessionHandler import DBSessionHandler
+            handler = DBSessionHandler(self.setting)
+        handler.open()
+        self.handler = handler
     def load(self):
         """
         セッション読み込み

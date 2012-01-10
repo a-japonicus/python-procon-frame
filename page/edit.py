@@ -13,7 +13,6 @@
 import path
 from xml.sax.saxutils import *
 from page import Page
-from lib.session.session import Session
 from lib.tag import *
 from lib import DBAccess
 from lib.user import User
@@ -56,11 +55,11 @@ class EditPage(Page):
         page = DivTag('page', H2Tag(u'問題作成'))
 
         if not data['login']:
-            page.add_value(PTag(u'問題を登録するには%sする必要があります。'%ATag('./index.py?page=login',u'ログイン')))
+            page.add_value(PTag(u'問題を登録するには%sする必要があります。'%ATag('./login',u'ログイン')))
         elif data['mode'] == 'upload':
             page.add_value([
                 PTag(u'この内容で登録してもよろしいですか？'),
-                FormTag(action='./index.py?page=edit', values=[
+                FormTag(action='./edit', values=[
                     u'問題名：%s'%TextTag(name='problem_title', value=escape(data['problem_title']), elements={'readonly':None}),BRTag(),
                     TextAreaTag(name='problem', values=escape(data['problem_data']), elements={'cols':100, 'rows':20, 'readonly':None}),BRTag(),
                     HiddenTag(name='mode', value='regist'),
@@ -72,7 +71,7 @@ class EditPage(Page):
             page.add_value(PTag(u'問題を登録しました'))
         else:
             page.add_value(
-                FormTag(action='./index.py?page=edit', values=[
+                FormTag(action='./edit', values=[
                     u'問題名：%s'%TextTag(name='title', value=escape(data['problem_title'])),BRTag(),
                     TextAreaTag(name='data', values=escape(data['problem_data']), elements={'cols':100, 'rows':20}),BRTag(),
                     HiddenTag(name='mode', value='upload'),

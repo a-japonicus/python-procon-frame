@@ -15,7 +15,6 @@ import hashlib
 import uuid
 from xml.sax.saxutils import *
 from page import Page
-from lib.session.session import Session
 from lib.tag import *
 from lib import DBAccess
 from lib.user import User
@@ -87,7 +86,7 @@ class ProfilePage(Page):
             page.add_value(PTag(u'ログインしていません'))
         elif data['mode'] == 'edit':
             page.add_value([
-                FormTag(action='./index.py?page=profile', values=[
+                FormTag(action='./profile', values=[
                     TableTag([
                         TRTag([TDTag(u'ユーザID'), TDTag(':'), TDTag(data['userid'])]),
                         TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag(data['username'])]),
@@ -100,7 +99,7 @@ class ProfilePage(Page):
             ])
         elif data['mode'] == 'pass_edit':
             page.add_value([
-                FormTag(action='./index.py?page=profile', values=[
+                FormTag(action='./profile', values=[
                     TableTag([
                         TRTag([TDTag(u'旧パスワード'), TDTag(':'), TDTag(PasswordTag('old_password', ''))]),
                         TRTag([TDTag(u'新パスワード'), TDTag(':'), TDTag(PasswordTag('new_password', ''))]),
@@ -119,11 +118,11 @@ class ProfilePage(Page):
                     TRTag([TDTag(u'ハッシュ'), TDTag(':'), TDTag(escape(data['userhash']))]),
                 ]),
                 TableTag(TRTag([
-                    FormTag(action='./index.py?page=profile', values=[
+                    FormTag(action='./profile', values=[
                         HiddenTag('mode', 'edit'),
                         SubmitTag(value=u'編集'),
                     ]),
-                    FormTag(action='./index.py?page=profile', values=[
+                    FormTag(action='./profile', values=[
                         HiddenTag('mode', 'pass_edit'),
                         SubmitTag(value=u'パスワード変更'),
                     ])])

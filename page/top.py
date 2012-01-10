@@ -14,7 +14,6 @@ import path
 import hashlib
 from xml.sax.saxutils import *
 from page import Page
-from lib.session.session import Session
 from lib.tag import *
 from lib import DBAccess
 
@@ -44,6 +43,7 @@ class TopPage(Page):
             H2Tag(u'トップ画面'),
             DivTag('update', [
                 TableTag(caption=u'更新履歴',elements = {'border':2, 'rules':'none'}, values=[
+                    TRTag([TDTag(u'2012/01/09'), TDTag(':'), TDTag(u'トップ画面作成')]),
                     TRTag([TDTag(u'2012/01/08'), TDTag(':'), TDTag(u'管理画面作成')]),
                     TRTag([TDTag(u'2012/01/08'), TDTag(':'), TDTag(u'トップ画面作成')]),
                     TRTag([TDTag(u'2012/01/07'), TDTag(':'), TDTag(u'登録画面作成')]),

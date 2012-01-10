@@ -15,9 +15,9 @@ import os
 import time
 import datetime
 from Cookie import SimpleCookie
-from lib.tag import *
+from tag import *
 
-class Response(object):
+class BaseResponse(object):
     """
      HTTPのレスポンスを返すクラス
     """
@@ -29,6 +29,8 @@ class Response(object):
         self.response_headers={}
         self.response_data=[]
         self.set_response_header('Content-type', 'text/html;charset=%s' % charset)
+    def get_charset(self):
+        return self.charset
     def set_cookie(self, key, value, lifetime=0):
         """
         クッキーをセット
@@ -54,6 +56,18 @@ class Response(object):
         if self.cookie != None:
             header += self.cookie.output() + '\n'
         return header
+    def get_header_list(self):
+        ret = []
+        for k,v in self.response_headers.items():
+            ret.append((k, v))
+
+        for cookie_key,value in self.cookie.items():
+            cookie_value = '%s=%s' % (cookie_key, self.cookie[cookie_key].value)
+            if hasattr(value, '__iter__'):
+                cookie_value += ''.join(['; %s=%s' % (k,v) for k,v in value.items() if v != ''])
+            ret.append(('Set-Cookie', cookie_value))
+
+        return ret
     def add_response_data(self, value):
         """
         レスポンスデータ追加
@@ -64,12 +78,14 @@ class Response(object):
         レスポンスデータ削除
         """
         self.response_data=[]
-    def make_response_data(self):
+    def make_response_body(self):
         """
         レスポンスデータ出力
         """
         response_data = ''.join(['%s\n' % v for v in self.response_data if v != None])
         return response_data
+    def get_body(self):
+        return self.make_response_body().encode(self.charset)
     def make_output(self):
         """
         レスポンスを出力
@@ -78,7 +94,7 @@ class Response(object):
         # ヘッダー
         output += self.make_response_header() + '\n'
         # ボディ出力
-        output += self.make_response_data()
+        output += self.make_response_body()
         return output
 
     def __str__(self):
@@ -90,3 +106,4 @@ if __name__ == "__main__":
     response.set_response_header('Content-type', 'text/html;charset=utf-8')
     response.add_response_data(u'<html><head><title>Responseクラス</title></head><body>Responseクラスのテストページ</body></html>')
     print ('%s'.encode('utf-8') % response)
+    print (response.get_header_list())

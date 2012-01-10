@@ -14,7 +14,6 @@ import path
 import hashlib
 from xml.sax.saxutils import *
 from page import Page
-from lib.session.session import Session
 from lib.tag import *
 from lib import DBAccess
 from lib.user import User
@@ -75,7 +74,7 @@ class AdminPage(Page):
             page.add_value(PTag(u'アクセス許可がありません'))
         elif not data['login']:
             page.add_value([
-                FormTag(action='./index.py?page=admin', values=[
+                FormTag(action='./admin', values=[
                     TableTag([
                         TRTag([TDTag(u'ユーザ名'), TDTag(':'), TDTag('%s' % TextTag(name='username', value=''))]),
                         TRTag([TDTag(u'パスワード'), TDTag(':'), TDTag('%s' % PasswordTag(name='password', value=''))]),
@@ -88,7 +87,7 @@ class AdminPage(Page):
                 page.add_value(PTag(u'ログインに失敗しました'))
         else:
             page.add_value([
-                FormTag(action='./index.py?page=admin', values=[
+                FormTag(action='./admin', values=[
                     HiddenTag(name='mode', value='logout'),
                     SubmitTag(value=u'ログアウト'),
                 ])
@@ -110,7 +109,7 @@ class AdminPage(Page):
                     tr.add_value(TDTag(escape(u'%s'%user[field])))
                 tr.add_value([
                     TDTag(' '),
-                    FormTag(action='./index.py?page=admin', values=TDTag([TextTag('password'),HiddenTag('mode','reset_password'),HiddenTag('username',user['username']),SubmitTag(value=u'リセット')]))
+                    FormTag(action='./admin', values=TDTag([TextTag('password'),HiddenTag('mode','reset_password'),HiddenTag('username',user['username']),SubmitTag(value=u'リセット')]))
                 ])
                 user_tbl.add_value(tr)
             page.add_value(user_tbl)
