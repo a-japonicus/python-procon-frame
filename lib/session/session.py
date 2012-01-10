@@ -15,9 +15,6 @@ import os
 import pickle
 import json
 import uuid
-import time
-import datetime
-import copy
 import hashlib
 from Cookie import SimpleCookie
 import random
@@ -31,17 +28,15 @@ class Session(object):
     """
     セッション管理クラス
     """
-    def __init__(self, cookie, handler, setting):
-        self.cookie = cookie
+    def __init__(self, handler, setting, session_id=None):
         self.setting = setting
         self.handler = handler
         self.serializer = pickle
-        self.session_id = None
+        self.session_id = session_id
         self.prev_session_id = []
         self.lifetime = int(self.setting['lifetime'], 10)
         self.handler.open()
-        if COOKIE_SESSIONID in cookie:
-            self.session_id=cookie[COOKIE_SESSIONID].value
+        if self.session_id is not None:
             self.load()
         else:
             self.data = {}
@@ -100,25 +95,23 @@ class Session(object):
         if session_id is not None:
             self.prev_session_id.append(self.session_id)
             self.session_id = session_id
+    def get_lifetime(self):
+        return self.lifetime
     def get_session_id(self):
         """
         セッションID取得
         """
         return self.session_id
+    def exist(self):
+        if self.session_id is None:
+            return False
+        return True
     def close(self):
         """
         セッションクローズ
         """
         if self.session_id is not None:
-            # クッキーにセッションIDをセット
             self.save()
-            expires = datetime.datetime.now()+datetime.timedelta(seconds=self.lifetime)
-            self.cookie[COOKIE_SESSIONID] = self.session_id
-        else:
-            # セッションIDが存在しないのでクッキー削除
-            expires = datetime.datetime.now()-datetime.timedelta(days=1)
-            self.cookie[COOKIE_SESSIONID] = ''
-        self.cookie[COOKIE_SESSIONID]["expires"]=expires.strftime("%a, %d-%b-%Y %H:%M:%S JST")
 
         # 過去のセッションIDを削除
         for prev_id in self.prev_session_id:

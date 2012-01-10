@@ -14,19 +14,16 @@ import path
 import cgi
 import os
 import atexit
-from xml.sax.saxutils import *
 import ConfigParser
+from xml.sax.saxutils import *
 from Cookie import SimpleCookie
 from lib.response import Response
 from lib.session.session import Session
 from lib.tag import *
-from page.page import Page
 from lib import DBAccess
 
 form = cgi.FieldStorage()
 cookie=SimpleCookie(os.environ.get('HTTP_COOKIE',''))
-
-#cookie['SESSIONID'] = 'b9c34db31dcd13db6de0f7dad1474397'
 
 # 設定ファイル読み込み
 CONF_FILE = os.path.join(os.path.dirname(__file__), "../setting.conf")
@@ -55,6 +52,7 @@ if setting['database']['create'] == 'On':
             dba.execute_sql(s)
         except:
             pass
+        
 # セッション
 session_handler = None
 if setting['session']['handler'] == 'file':
@@ -63,8 +61,13 @@ if setting['session']['handler'] == 'file':
 elif setting['session']['handler'] == 'database':
     from lib.session.DBSessionHandler import DBSessionHandler
     session_handler = DBSessionHandler(setting['session'])
-session = Session(cookie, session_handler, setting['session'])
 
+#cookie['SESSIONID'] = 'b9c34db31dcd13db6de0f7dad1474397'   #セッションテスト
+if setting['session']['id'] in cookie:
+    session_id = cookie[setting['session']['id']].value
+else:
+    session_id = None
+session = Session(session_handler, setting['session'], session_id)
 
 # レスポンス作成開始
 response = Response(cookie)
@@ -72,7 +75,7 @@ page = form.getvalue('page', 'top')
 
 #トップ部分作成
 top = DivTag('top')
-top.add_value(H1Tag(u'高専プロコン競技練習場'))
+top.add_value(H1Tag(u'テストページ'))
 if session.getvalue('login', False):
     top.add_value(PTag(u'ログイン中です'))
 top_links = [('top', u'トップ'), ('edit', u'問題作成'), ('bbs', u'掲示板'), ('about', u'取扱説明書'), ('profile', u'プロフィール'), ('regist', u'登録'), ('logout', u'ログアウト'), ('login', u'ログイン'), ('admin', u'管理画面')]
@@ -98,13 +101,14 @@ except:
 
 # ページクラスが読み込めなければ未実装と判定
 if response_page is None:
+    from page.page import Page
     response_page = Page(session, setting, form)
     page_data = response_page.make_page()
 
 # HTMLの組立て
 response.add_response_data(
     HtmlTag([
-        HeadTag(TitleTag(u'高専プロコン競技練習場[%s]' % response_page.get_title())),
+        HeadTag(TitleTag(u'テストページ[%s]' % escape(response_page.get_title()))),
         BodyTag([
             CenterTag([
                 top,
@@ -116,6 +120,12 @@ response.add_response_data(
 )
 
 session.close()
+if session.exist():
+    # クッキーにセッションIDをセット
+    response.set_cookie(setting['session']['id'], session.get_session_id(), session.get_lifetime())
+else:
+    # セッションが存在しないのでクッキー削除
+    response.set_cookie(setting['session']['id'], '', -1)
 print (response)
 
 # デバッグ出力
@@ -123,8 +133,8 @@ if setting['debug']['enable'] == 'On':
     for info in error_info:
         print (escape(str(info)).encode('utf-8'))
         print('<br>')
-    for flist in form.list:
-        print (escape(str(flist)).encode('utf-8'))
-        print('<br>')
-    for k,v in os.environ.items():
-        print (k,v)
+#    for flist in form.list:
+#        print (escape(str(flist)).encode('utf-8'))
+#        print('<br>')
+#    for k,v in os.environ.items():
+#        print (k,v)

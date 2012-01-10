@@ -11,6 +11,9 @@
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
 import path
+import os
+import time
+import datetime
 from Cookie import SimpleCookie
 from lib.tag import *
 
@@ -19,11 +22,20 @@ class Response(object):
      HTTPのレスポンスを返すクラス
     """
     def __init__(self, cookie=None, charset='utf-8'):
+        if cookie is None:
+            cookie=SimpleCookie(os.environ.get('HTTP_COOKIE',''))
         self.cookie = cookie
         self.charset = charset
         self.response_headers={}
         self.response_data=[]
         self.set_response_header('Content-type', 'text/html;charset=%s' % charset)
+    def set_cookie(self, key, value, lifetime=0):
+        """
+        クッキーをセット
+        """
+        expires = datetime.datetime.now()+datetime.timedelta(seconds=lifetime)
+        self.cookie[key] = value
+        self.cookie[key]["expires"]=expires.strftime("%a, %d-%b-%Y %H:%M:%S JST")
     def set_response_header(self, name, value):
         """
         レスポンスヘッダ追加
