@@ -29,8 +29,8 @@ class LogoutPage(Page):
         ページの処理
         """
         login =  self.session.getvalue('login', False)
-#        self.session.setvalue('login', False)
-        self.session.delete()
+        self.session.setvalue('login', False)
+#        self.session.delete()
 
         # テンプレ―ト用データ
         template_data = {}

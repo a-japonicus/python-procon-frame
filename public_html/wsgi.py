@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #-------------------------------------------------------------------------------
-# Name:        SimpleCGIServer
-# Purpose:     CGIHTTPServerを使用した簡易サーバ
+# Name:        WSGI
+# Purpose:     WSGIを使ったWebアプリ
 #
 # Author:      hatahata
 #
@@ -16,7 +16,7 @@ import cgi
 from Cookie import SimpleCookie
 from lib.request import Request
 from lib.MyStrage import MyStrage
-from app import AppResponse
+from lib.AppResponse import AppResponse
 from lib import DBAccess
 from lib.session import Session
 
@@ -36,15 +36,15 @@ class App(object):
         CONF_FILE = os.path.join(path.ROOT_DIR, "./setting.conf")
         conf = ConfigParser.SafeConfigParser()
         conf.read(CONF_FILE)
-        
+
         setting = {}
         for section in conf.sections():
             setting[section] = {}
             for option in conf.options(section):
                 setting[section][option] = conf.get(section, option)
         return setting
-    
-    def create_database(self, dba):
+
+    def create_table(self, dba):
         """
         テーブル作成
         """
@@ -62,15 +62,13 @@ class App(object):
     def __call__(self, environ, start_response):
         """
         レスポンスのボディを返す。
-        
+
         env
             HTTP リクエストが格納された辞書。
         start_response
             呼び出し可能オブジェクト。
             start_response を使って、ステータスコードとレスポンスヘッダを出力する。
         """
-#        import app
-#        response = app.response
         # ルーティング情報取得
         route = environ.get('PATH_INFO', '').strip('/').split('/')
         # POSTデータ取出し
@@ -91,7 +89,7 @@ class App(object):
         # データベース
         DBAccess.create(setting['database'])
         if setting['database']['create'] == 'On':
-            self.create_database(DBAccess.order())
+            self.create_table(DBAccess.order())
         # セッション
         session_id = None
         if COOKIE_SESSIONID in cookie:
@@ -100,7 +98,7 @@ class App(object):
 
         session = Session.order()
         dba = DBAccess.order()
-  
+
         # リクエスト情報を設定
         request = Request()
         request.set('Setting', setting)
@@ -112,7 +110,7 @@ class App(object):
         request.set('Environ', environ)
         # レスポンスを作成
         response = AppResponse(request)
-        
+
         # クッキーにセッションIDをセット
         session.close()
         response.set_cookie(COOKIE_SESSIONID, session.get_session_id(), session.get_lifetime())
@@ -123,18 +121,7 @@ class App(object):
         start_response("200 OK", response.get_header_list())
         return response.get_body()
 
-#        print(response.get_header_list())
-#        print(unicode(response.get_body(), response.get_charset()))
-#        start_response("200 OK", [("Content-type", "text/plain")])
-#        return "Hello world!"
-
 
 if __name__ == "__main__":
     pass
-#    import BaseHTTPServer
-#    import CGIHTTPServer
-#    from wsgiref import simple_server
-#    server = simple_server.make_server("", 80, App())
-#    server.serve_forever()
-    
-    
+
