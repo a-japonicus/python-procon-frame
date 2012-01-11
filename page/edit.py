@@ -38,6 +38,15 @@ class EditPage(Page):
         if mode == 'regist':
             if self.form_data.getvalue('return') is not None:
                 mode = ''
+            else:
+                # 問題登録
+                # TODO:問題の整合性チェック
+                user = User(self.session.getvalue('username'))
+                title = unicode(self.form_data.getvalue('title', ''), 'utf-8')
+                data = unicode(self.form_data.getvalue('data', ''), 'utf-8')
+                user_id = user.getvalue('user_id', -1)
+                if title is not None and data is not None and user_id is not None:
+                    self.dba.insert('problem_tbl', {'user_id':user_id, 'title':title, 'data':data})
         
         # テンプレ―ト用データ
         template_data = {}
@@ -60,8 +69,8 @@ class EditPage(Page):
             page.add_value([
                 PTag(u'この内容で登録してもよろしいですか？'),
                 FormTag(action='./edit', values=[
-                    u'問題名：%s'%TextTag(name='problem_title', value=escape(data['problem_title']), elements={'readonly':None}),BRTag(),
-                    TextAreaTag(name='problem', values=escape(data['problem_data']), elements={'cols':100, 'rows':20, 'readonly':None}),BRTag(),
+                    u'問題名：%s'%TextTag(name='title', value=escape(data['problem_title']), elements={'readonly':None}),BRTag(),
+                    TextAreaTag(name='data', values=escape(data['problem_data']), elements={'cols':100, 'rows':20, 'readonly':None}),BRTag(),
                     HiddenTag(name='mode', value='regist'),
                     SubmitTag(name='return', value=u'戻る'),
                     SubmitTag(name='regist', value=u'登録'),
@@ -69,6 +78,9 @@ class EditPage(Page):
             ])
         elif data['mode'] == 'regist':
             page.add_value(PTag(u'問題を登録しました'))
+#            page.add_value(PTag(str(self.dba.select('problem_tbl'))))
+#            page.add_value(PTag(data['problem_title']))
+#            page.add_value(PTag(data['problem_data']))
         else:
             page.add_value(
                 FormTag(action='./edit', values=[
