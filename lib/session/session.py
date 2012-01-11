@@ -80,9 +80,6 @@ class Session(object):
             self.regenerate_id()
         if self.session_id is not None:
             self.handler.write(self.session_id, self.serializer.dumps(self.data))
-#            data = self.handler.read(self.session_id)
-#            print(self.data, self.serializer.loads(data.encode('utf-8')))
-#            raise Exception(self.serializer.dumps(self.data), self.serializer.loads(data.encode('utf-8')))
     def delete(self):
         """
         セッション削除
