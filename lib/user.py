@@ -18,10 +18,13 @@ class User(object):
     """
     ユーザ用ライブラリ
     """
-    def __init__(self, username, password=None, salt=''):
+    def __init__(self, user_id=None):
         self.dba = DBAccess.order()
         self.data = {}
-        self.select(username, password, salt)
+        self.select(user_id=user_id)
+    def login(self, username, password=None, salt=''):
+        self.select(username=username, password=password, salt=salt)
+        return self.exist()
     def exist(self):
         return self.getvalue('username') is not None
     def setvalue(self, key, value):
@@ -30,20 +33,23 @@ class User(object):
         if key in self.data:
             return self.data[key]
         return default
-    def select(self, username, password=None, salt=''):
+    def select(self, user_id=None, username=None, password=None, salt=''):
         self.data = {}
-        if username is None or not username.isalnum():
-            return False
-        where = {'username':username}
+        where = {}
+        if user_id is not None:
+            where['user_id'] = user_id
+        if username is not None:
+            where['username'] = username
         if password is not None:
-            if not password.isalnum():
-                return False
             where['password'] = self.password_hash(username, password, salt)
-        data = self.dba.select('user_tbl', '*', where)
-        if len(data) != 1:
-            return False
-        self.data = data[0]
-        return True
+        if 'user_id' in where or 'username' in where:
+            data = self.dba.select('user_tbl', '*', where)
+            if len(data) != 1:
+                return False
+            self.data = data[0]
+            return True
+
+        return False
     def update(self):
         if self.exist():
             if self.dba.update('user_tbl', self.data, {'username':self.data['username']}) == 1:
@@ -56,10 +62,11 @@ class User(object):
             try:
                 self.dba.insert('user_tbl', self.data)
                 self.dba.commit()
-                return True
+                self.select(self.getvalue('user_id'), self.getvalue('username'))
+                return self.getvalue('user_id')
             except:
                 self.dba.rollback()
-        return False
+        return None
     def delete(self):
         if self.exist():
             if self.dba.delete('user_tbl', {'username':self.data['username']}) == 1:

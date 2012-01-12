@@ -24,7 +24,6 @@ class RegistPage(Page):
     def __init__(self, session, setting, form_data=None):
         super(RegistPage, self).__init__(session, setting, form_data)
         self.set_title(u'登録')
-        self.set_session(session)
         self.dba = DBAccess.order()
     def regist(self, username, password):
         """
@@ -34,12 +33,12 @@ class RegistPage(Page):
         if user.exist():
             return False
         user.setvalue('username', username)
-        user.setvalue('nickname', u'名無しさん')
+        user.setvalue('nickname', u'名無し')
         user.reset_hash()
         if not user.reset_password(new_password=password, salt=self.setting['password']['salt'], force=True):
             return False
         return user.insert()
-        
+
     def make_page(self):
         """
         ページの処理
@@ -59,10 +58,11 @@ class RegistPage(Page):
             login = True
         elif mode == 'regist':
             regist_failed = True
-            if password == retype_password  and  self.regist(username, password):
+            user_id = self.regist(username, password)
+            if password == retype_password  and  user_id:
                 # ここで登録
                 self.session.setvalue('login', True)
-                self.session.setvalue('username', username)
+                self.session.setvalue('user_id', user_id)
                 regist = True
                 regist_failed = False
 

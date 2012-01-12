@@ -14,6 +14,7 @@ import path
 from xml.sax.saxutils import *
 from lib.response import BaseResponse
 from lib.tag import *
+from lib.user import User
 
 class AppResponse(BaseResponse):
     """
@@ -26,21 +27,6 @@ class AppResponse(BaseResponse):
         self.title=''
         self.make_html()
 
-    def make_top(self):
-        """
-        トップ部分作成
-        """
-        session = self.request.get('Session')
-        top = DivTag('top')
-        top.add_value(H1Tag(u'テストページ'))
-        if session.getvalue('login', False):
-            top.add_value(PTag(u'ログイン中です'))
-        top_links = [('top', u'トップ'), ('edit', u'問題作成'), ('bbs', u'掲示板'), ('about', u'取扱説明書'), ('profile', u'プロフィール'), ('regist', u'登録'), ('logout', u'ログアウト'), ('login', u'ログイン'), ('admin', u'管理画面')]
-        for p in top_links:
-            top.add_value(u'[%s]' % ATag('./%s'%p[0], p[1]))
-
-        return top
-
     def make_page(self):
         """
         メインのページ部分作成
@@ -50,7 +36,7 @@ class AppResponse(BaseResponse):
         setting = self.request.get('Setting')
         post = self.request.get('Post')
 
-        if len(route) == 0:
+        if route[0] == '':
             route = ['top']
 
         page = route[0]
@@ -61,7 +47,7 @@ class AppResponse(BaseResponse):
             page_class_name = page.capitalize()+'Page'
             page_class = getattr(__import__('page.'+page, {}, {}, page_class_name), page_class_name)
             response_page = page_class(session, setting, post)
-            page_data = response_page.make_page()
+            page_data = response_page.make_html()
         except:
             import sys
             self.error_info.append(sys.exc_info())
@@ -71,7 +57,7 @@ class AppResponse(BaseResponse):
         if response_page is None:
             from page.page import Page
             response_page = Page(session, setting, post)
-            page_data = response_page.make_page()
+            page_data = response_page.make_html()
 
         self.title = response_page.get_title()
 
@@ -81,35 +67,41 @@ class AppResponse(BaseResponse):
         """
         HTMLの組立
         """
-        top = self.make_top()
-        page = self.make_page()
+        try:
+            page = self.make_page()
+        except:
+            import sys
+            self.error_info.append(sys.exc_info())
+
         # デバッグ出力
         debug_output = ""
         setting = self.request.get('Setting')
         if setting['debug']['enable'] == 'On':
-            debug_output = DivTag('debug',[BRTag(),BRTag(),H3Tag(u'デバッグ')])
-            for info in self.error_info:
-                debug_output.add_value(PTag(escape(str(info))))
-            """
-            for flist in form.list:
-                print (escape(str(flist)).encode('utf-8'))
-                print('<br>')
-            """
-        #    for k,v in os.environ.items():
-        #        print (k,v)
+            debug_output = DivTag('debug',Tag('font', H3Tag(u'デバッグモード'), {'color':'red'}))
+            # SESSION
+            session_items = self.request.get('Session').items()
+            if len(session_items) > 0:
+                session_list = PTag(Tag('font', Tag('b','SESSION: '), {'size':3}))
+                for name,value in session_items:
+                    session_list.add_value(escape(unicode('%s => %s, ' % (name, value), 'utf-8')))
+                debug_output.add_value(session_list)
+            # POST
+            post_list = PTag(Tag('font', Tag('b','POST: '), {'size':3}))
+            post = self.request.get('Post')
+            post_items = post.items()
+            if len(post_items) > 0:
+                for name,value in post_items:
+                    post_list.add_value(escape(unicode('%s => %s, ' % (name, value), 'utf-8')))
+                debug_output.add_value(post_list)
+            # ERROR
+            if len(self.error_info) > 0:
+                error_list = PTag(Tag('font', Tag('b','ERROR: '), {'size':3}))
+                for info in self.error_info:
+                    error_list.add_value(escape('%s, ' % str(info)))
+                debug_output.add_value(error_list)
+
+            self.add_response_data(CenterTag(debug_output))
 
         # HTMLの組立て
-        self.add_response_data(
-            HtmlTag([
-                HeadTag(TitleTag(u'テストページ[%s]' % escape(self.title))),
-                BodyTag([
-                    CenterTag([
-                        top,
-                        HRTag(),
-                        page,
-                        debug_output,
-                    ])
-                ])
-            ])
-        )
+        self.add_response_data(page)
 

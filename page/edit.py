@@ -24,7 +24,6 @@ class EditPage(Page):
     def __init__(self, session, setting, form_data=None):
         super(EditPage, self).__init__(session, setting, form_data)
         self.set_title(u'問題作成')
-        self.set_session(session)
         self.dba = DBAccess.order()
     def make_page(self):
         """
@@ -34,20 +33,19 @@ class EditPage(Page):
         mode = self.form_data.getvalue('mode')
         title = unicode(self.form_data.getvalue('title', '練習問題'), 'utf-8')
         data = unicode(self.form_data.getvalue('data', 'ここに問題文を入力してください'), 'utf-8')
-        
+
         if mode == 'regist':
             if self.form_data.getvalue('return') is not None:
                 mode = ''
             else:
                 # 問題登録
                 # TODO:問題の整合性チェック
-                user = User(self.session.getvalue('username'))
                 title = unicode(self.form_data.getvalue('title', ''), 'utf-8')
                 data = unicode(self.form_data.getvalue('data', ''), 'utf-8')
-                user_id = user.getvalue('user_id', -1)
+                user_id = self.session.getvalue('user_id')
                 if title is not None and data is not None and user_id is not None:
                     self.dba.insert('problem_tbl', {'user_id':user_id, 'title':title, 'data':data})
-        
+
         # テンプレ―ト用データ
         template_data = {}
         template_data['login'] = login
@@ -90,7 +88,7 @@ class EditPage(Page):
                     SubmitTag(value=u'決定'),
                 ])
             )
-            
+
         return page
 
 

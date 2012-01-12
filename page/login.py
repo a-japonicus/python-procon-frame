@@ -26,7 +26,6 @@ class LoginPage(Page):
     def __init__(self, session, setting, form_data=None):
         super(LoginPage, self).__init__(session, setting, form_data)
         self.set_title(u'ログイン')
-        self.set_session(session)
         self.dba = DBAccess.order()
     def login(self, username, password):
         """
@@ -36,7 +35,7 @@ class LoginPage(Page):
             return False
         if not username.isalnum() or not password.isalnum():
             return False
-        return 
+        return
     def make_page(self):
         """
         ページの処理
@@ -55,11 +54,11 @@ class LoginPage(Page):
             login = True
         elif mode == 'login':
             login_failed = True
-            user = User(username, password, self.setting['password']['salt'])
-            if user.exist():
+            user = User()
+            if user.login(username, password, self.setting['password']['salt']):
                 # ログイン成功
                 self.session.setvalue('login', True)
-                self.session.setvalue('username', username)
+                self.session.setvalue('user_id', user.getvalue('user_id'))
                 redirect = True
                 login_failed = False
 
@@ -79,7 +78,9 @@ class LoginPage(Page):
         """
         page = DivTag('page', H2Tag(u'ログイン画面'))
         if data['redirect']:
-            page.add_value(RedirectTag('./top'))
+            from top import TopPage
+            top = TopPage(self.session, self.setting, self.form_data)
+            page = top.make_page()
         elif data['login']:
             page.add_value(PTag(u'ログイン済みです'))
         else:

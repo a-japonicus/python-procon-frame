@@ -42,11 +42,7 @@ class Session(object):
         self.prev_session_id = []
         self.lifetime = int(self.setting['lifetime'], 10)
         self.create_handler()
-        if self.session_id is not None:
-            self.load()
-        else:
-            self.data = {}
-        self.regenerate_id()
+        self.load()
         if random.random() <= GC_PROB:
             self.handler.gc(self.lifetime)
     def create_handler(self):
@@ -66,11 +62,14 @@ class Session(object):
         """
         セッション読み込み
         """
-        data = self.handler.read(self.session_id, self.lifetime)
-        try:
-            self.data = self.serializer.loads(data)
-        except:
-            self.regenerate_id()
+        if self.session_id is not None:
+            data = self.handler.read(self.session_id, self.lifetime)
+            try:
+                self.data = self.serializer.loads(data)
+            except:
+                self.regenerate_id()
+                self.data = {}
+        else:
             self.data = {}
     def save(self):
         """
@@ -84,8 +83,21 @@ class Session(object):
         """
         セッション削除
         """
-        self.handler.delete(self.session_id)
-        self.session_id = None
+        if self.session_id is not None:
+            self.handler.delete(self.session_id)
+            self.data = {}
+            self.session_id = None
+    def items(self):
+        """
+        セッションのデータを辞書で返す
+        """
+        return self.data.items()
+    def delvalue(self, key):
+        """
+        セッションの値削除
+        """
+        if key in self.data:
+            del self.data[key]
     def setvalue(self, key, value):
         """
         セッションに値書き込み
@@ -126,10 +138,14 @@ class Session(object):
         """
         セッションクローズ
         """
-        if self.session_id is not None:
+        if len(self.data) == 0:
+            # データが無ければセッション削除
+            self.delete()
+        else:
             self.save()
 
         # 過去のセッションIDを削除
         for prev_id in self.prev_session_id:
-            self.handler.delete(prev_id)
+            if prev_id is not None:
+                self.handler.delete(prev_id)
         self.handler.close()

@@ -13,12 +13,19 @@
 import path
 
 class MyStrage(object):
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, data=None):
+        self.data = {}
+        if data is not None:
+            for key,value in data:
+                self.data[key] = data[key]
+    def setvalue(self, key, value):
+        self.data[key] = value
     def getvalue(self, key, default=None):
         if key in self.data:
             return self.data[key]
         return default
+    def items(self):
+        return self.data.items()
 
 if __name__ == "__main__":
     pass

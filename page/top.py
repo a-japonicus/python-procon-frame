@@ -24,7 +24,6 @@ class TopPage(Page):
     def __init__(self, session, setting, form_data=None):
         super(TopPage, self).__init__(session, setting, form_data)
         self.set_title(u'トップ')
-        self.set_session(session)
         self.dba = DBAccess.order()
     def make_page(self):
         """
@@ -43,13 +42,14 @@ class TopPage(Page):
             H2Tag(u'トップ画面'),
             DivTag('update', [
                 TableTag(caption=u'更新履歴',elements = {'border':2, 'rules':'none'}, values=[
-                    TRTag([TDTag(u'2012/01/09'), TDTag(':'), TDTag(u'トップ画面作成')]),
-                    TRTag([TDTag(u'2012/01/08'), TDTag(':'), TDTag(u'管理画面作成')]),
-                    TRTag([TDTag(u'2012/01/08'), TDTag(':'), TDTag(u'トップ画面作成')]),
-                    TRTag([TDTag(u'2012/01/07'), TDTag(':'), TDTag(u'登録画面作成')]),
-                    TRTag([TDTag(u'2012/01/07'), TDTag(':'), TDTag(u'ログアウト画面作成')]),
-                    TRTag([TDTag(u'2011/12/31'), TDTag(':'), TDTag(u'ログイン画面作成')]),
-                    TRTag([TDTag(u'2011/12/31'), TDTag(':'), TDTag(u'フレーム作成')]),
+                    TRTag([TDTag(u'2012/01/09'), TDTag(':'), TDTag(u'問題作成画面追加')]),
+                    TRTag([TDTag(u'2012/01/09'), TDTag(':'), TDTag(u'プロフィール画面追加')]),
+                    TRTag([TDTag(u'2012/01/08'), TDTag(':'), TDTag(u'管理画面追加')]),
+                    TRTag([TDTag(u'2012/01/08'), TDTag(':'), TDTag(u'トップ画面追加')]),
+                    TRTag([TDTag(u'2012/01/07'), TDTag(':'), TDTag(u'登録画面追加')]),
+                    TRTag([TDTag(u'2012/01/07'), TDTag(':'), TDTag(u'ログアウト画面追加')]),
+                    TRTag([TDTag(u'2011/12/31'), TDTag(':'), TDTag(u'ログイン画面追加')]),
+                    TRTag([TDTag(u'2011/12/31'), TDTag(':'), TDTag(u'フレーム追加')]),
                     ]
                 )
             ])

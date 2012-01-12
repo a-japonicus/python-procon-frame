@@ -30,7 +30,6 @@ class ProfilePage(Page):
     def __init__(self, session, setting, form_data=None):
         super(ProfilePage, self).__init__(session, setting, form_data)
         self.set_title(u'プロフィール')
-        self.set_session(session)
         self.dba = DBAccess.order()
     def update_password(self, username, old_password, new_password):
         pass
@@ -39,15 +38,15 @@ class ProfilePage(Page):
         ページの処理
         """
         login = self.session.getvalue('login', False)
-        username = self.session.getvalue('username', '')
+        user_id = self.session.getvalue('user_id', '-1')
         mode = self.form_data.getvalue('mode')
         reset_hash = self.form_data.getvalue('reset_hash', '') == 'reset'
         nickname = unicode(self.form_data.getvalue('nickname', ''), 'utf-8')
         edit_status = EDIT_NONE
         userid = ''
         userhash = ''
-        
-        user = User(username)
+
+        user = User(user_id)
         if login:
             if mode == 'pass_update':
                 old_password = self.form_data.getvalue('old_password', '')

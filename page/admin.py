@@ -25,7 +25,6 @@ class AdminPage(Page):
     def __init__(self, session, setting, form_data=None):
         super(AdminPage, self).__init__(session, setting, form_data)
         self.set_title(u'管理画面')
-        self.set_session(session)
         self.dba = DBAccess.order()
     def make_page(self):
         """
@@ -47,7 +46,7 @@ class AdminPage(Page):
                 else:
                     login_faled = True
             elif mode == 'logout':
-                self.session.setvalue('admin', False)
+                self.session.delvalue('admin')
                 login = False
             elif mode == 'reset_password':
                 user = User(username)

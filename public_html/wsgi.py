@@ -20,10 +20,6 @@ from lib.AppResponse import AppResponse
 from lib import DBAccess
 from lib.session import Session
 
-# クッキーのセッションIDキー
-COOKIE_SESSIONID = 'SESSIONID'
-
-
 class App(object):
     """
     WSGI アプリ
@@ -62,8 +58,7 @@ class App(object):
     def __call__(self, environ, start_response):
         """
         レスポンスのボディを返す。
-
-        env
+        environ
             HTTP リクエストが格納された辞書。
         start_response
             呼び出し可能オブジェクト。
@@ -72,32 +67,29 @@ class App(object):
         # ルーティング情報取得
         route = environ.get('PATH_INFO', '').strip('/').split('/')
         # POSTデータ取出し
-        post = {}
+        post = MyStrage()
         if environ.get('REQUEST_METHOD') == 'POST':
             content_length = environ.get('CONTENT_LENGTH', '')
             if not content_length.isalnum():
                 content_length = 0
             else:
                 wsgi_input = environ['wsgi.input']
-                for value in cgi.parse_qsl(wsgi_input.read(int(content_length))):
-                    post[value[0]] = value[1]
+                input_parse = cgi.parse_qsl(wsgi_input.read(int(content_length)))
+                for value in input_parse:
+                    post.setvalue(value[0], value[1])
         # クッキー
         cookie=SimpleCookie(environ.get('HTTP_COOKIE',''))
-#        print(cookie, route, post)
         # 設定
         setting = self.setting()
         # データベース
-        DBAccess.create(setting['database'])
+        dba = DBAccess.create(setting['database'])
         if setting['database']['create'] == 'On':
-            self.create_table(DBAccess.order())
+            self.create_table(dba)
         # セッション
         session_id = None
-        if COOKIE_SESSIONID in cookie:
-            session_id = cookie[COOKIE_SESSIONID].value
-        Session.create(setting['session'], session_id)
-
-        session = Session.order()
-        dba = DBAccess.order()
+        if setting['session']['id'] in cookie:
+            session_id = cookie[setting['session']['id']].value
+        session = Session.create(setting['session'], session_id)
 
         # リクエスト情報を設定
         request = Request()
@@ -105,7 +97,7 @@ class App(object):
         request.set('Session', session)
         request.set('DBA', dba)
         request.set('Route', route)
-        request.set('Post', MyStrage(post))
+        request.set('Post', post)
         request.set('Cookie', cookie)
         request.set('Environ', environ)
         # レスポンスを作成
@@ -113,11 +105,9 @@ class App(object):
 
         # クッキーにセッションIDをセット
         session.close()
-        response.set_cookie(COOKIE_SESSIONID, session.get_session_id(), session.get_lifetime())
+        response.set_cookie(setting['session']['id'], session.get_session_id(), session.get_lifetime())
 
         # レスポンス
-#        print(response.get_header_list())
-#        print(response.get_body())
         start_response("200 OK", response.get_header_list())
         return response.get_body()
 

@@ -22,14 +22,13 @@ class LogoutPage(Page):
     def __init__(self, session, setting, form_data=None):
         super(LogoutPage, self).__init__(session, setting, form_data)
         self.set_title(u'ログアウト')
-        self.set_session(session)
-
     def make_page(self):
         """
         ページの処理
         """
         login =  self.session.getvalue('login', False)
-        self.session.setvalue('login', False)
+        self.session.delvalue('login')
+        self.session.delvalue('user_id')
 #        self.session.delete()
 
         # テンプレ―ト用データ
@@ -42,12 +41,16 @@ class LogoutPage(Page):
         """
         なんちゃってテンプレート
         """
-        page = DivTag('page', H2Tag(u'ログアウト画面'))
+        page = ''
         if not data['login']:
-            page.add_value(PTag(u'ログインしていません'))
+            page = DivTag('page', [
+                H2Tag(u'ログアウト画面'),
+                PTag(u'ログインしていません')
+            ])
         else:
-            page.add_value(PTag(u'ログアウトしました'))
-            page.add_value(RedirectTag('./top', 5))
+            from top import TopPage
+            top = TopPage(self.session, self.setting, self.form_data)
+            page = top.make_page()
         return page
 
 
