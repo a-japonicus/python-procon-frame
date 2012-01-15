@@ -43,6 +43,22 @@ class Page(object):
         テキストの出力
         """
         self.set_contenttype('text/plane')
+    def index(self, param):
+        """
+        デフォルトページ
+        """
+        html = HtmlTag([
+                HeadTag(TitleTag(u'テストページ[未実装ページです]')),
+                BodyTag([
+                    CenterTag([
+                        self.make_top(),
+                        HRTag(),
+                        DivTag('page', PTag(u'未実装ページです')),
+                    ])
+                ])
+            ])
+        return html
+
     def error(self, param):
         """
         エラーページ

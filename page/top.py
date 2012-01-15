@@ -56,6 +56,7 @@ class TopPage(Page):
             H2Tag(u'トップ画面'),
             DivTag('update', [
                 TableTag(caption=u'更新履歴',elements = {'border':2, 'rules':'none'}, values=[
+                    TRTag([TDTag(u'2012/01/16'), TDTag(':'), TDTag(u'問題画面追加')]),
                     TRTag([TDTag(u'2012/01/09'), TDTag(':'), TDTag(u'問題作成画面追加')]),
                     TRTag([TDTag(u'2012/01/09'), TDTag(':'), TDTag(u'プロフィール画面追加')]),
                     TRTag([TDTag(u'2012/01/08'), TDTag(':'), TDTag(u'管理画面追加')]),

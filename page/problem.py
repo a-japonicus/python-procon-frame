@@ -38,7 +38,9 @@ class ProblemPage(Page):
             prob = Problem(param[0])
             if prob.correct():
                 template_data={}
-                template_data['problem'] = prob
+                template_data['id'] = prob.getvalue('problem_id', -1)
+                template_data['title'] = prob.getvalue('title', '')
+                template_data['data'] = prob.getvalue('data', '')
                 return self.problem_template(template_data)
 
         template_data = {}
@@ -62,9 +64,8 @@ class ProblemPage(Page):
         """
         なんちゃってテンプレート
         """
-        prob = data['problem']
-        page = DivTag('page', H2Tag(u'問題%d[%s]' %(prob.getvalue('problem_id',-1), prob.getvalue('title','None'))))
-        page.add_value(TextAreaTag('data', prob['data'], {'cols':100, 'rows':20, 'readonly':None}))
+        page = DivTag('page', H2Tag(u'問題%d[%s]' %(data['id'], escape(data['title']))))
+        page.add_value(TextAreaTag('data', escape(data['data']), {'cols':100, 'rows':20, 'readonly':None}))
 
         return self.html_page_template(page)
 
