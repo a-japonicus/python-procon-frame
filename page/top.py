@@ -79,7 +79,7 @@ class TopPage(Page):
         for p in data['problems']:
             prob_table.add_value(TRTag([
                 TDTag(u'%d'%p.getvalue('problem_id','-1')),
-                TDTag(p.getvalue('title','')),
+                TDTag(ATag('/problem/index/%d'%p.getvalue('problem_id',-1), p.getvalue('title',''))),
                 TDTag(data['users'][p.getvalue('user_id',-1)].getvalue('nickname','')),
             ]))
         page.add_value(prob_table)

@@ -37,7 +37,7 @@ class Problem(object):
         """
         整合性チェック
         """
-        if title is None or data is None or user_id is None:
+        if self.getvalue('title') is None or self.getvalue('data') is None or self.getvalue('user_id') is None:
             return False
         return True
     def select(self, problem_id):

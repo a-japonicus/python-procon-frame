@@ -69,7 +69,7 @@ class Page(object):
             top.add_value(PTag(u'ログイン中です:[%s] %s さん' % (escape(user.getvalue('username','')), escape(user.getvalue('nickname', '')))))
         top_links = [('top', u'トップ'), ('edit', u'問題作成'), ('bbs', u'掲示板'), ('about', u'取扱説明書'), ('profile', u'プロフィール'), ('regist', u'登録'), ('logout', u'ログアウト'), ('login', u'ログイン'), ('admin', u'管理画面')]
         for p in top_links:
-            top.add_value(u'[%s]' % ATag('./%s'%p[0], p[1]))
+            top.add_value(u'[%s]' % ATag('/%s'%p[0], p[1]))
 
         return top
     def html_page_template(self, page):
