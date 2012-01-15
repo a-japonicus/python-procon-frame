@@ -10,7 +10,6 @@
 # Copyright:   (c) hatahata 2012
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-import path
 
 class MyStrage(object):
     def __init__(self, data=None):
@@ -24,8 +23,16 @@ class MyStrage(object):
         if key in self.data:
             return self.data[key]
         return default
+    def __setitem__(self, key, value):
+        return self.setvalue(key, value)
+    def __getitem__(self, key):
+        return self.getvalue(key)
     def items(self):
         return self.data.items()
 
 if __name__ == "__main__":
-    pass
+    strage = MyStrage()
+    strage['A'] = 'A'
+    strage.setvalue('B', 'B')
+    print(strage['A'], strage.getvalue('B'))
+    print(strage['C'], strage.getvalue('C'))

@@ -23,20 +23,14 @@ class LoginPage(Page):
     """
     ログインページ出力
     """
-    def __init__(self, session, setting, form_data=None):
-        super(LoginPage, self).__init__(session, setting, form_data)
+    def __init__(self,request):
+        self.request = request
+        self.session = request['Session']
+        self.form_data = request['Post']
+        self.setting = request['Setting']
         self.set_title(u'ログイン')
         self.dba = DBAccess.order()
-    def login(self, username, password):
-        """
-        ログイン認証
-        """
-        if username is None or password is None:
-            return False
-        if not username.isalnum() or not password.isalnum():
-            return False
-        return
-    def make_page(self):
+    def index(self, param):
         """
         ページの処理
         """
@@ -59,8 +53,11 @@ class LoginPage(Page):
                 # ログイン成功
                 self.session.setvalue('login', True)
                 self.session.setvalue('user_id', user.getvalue('user_id'))
-                redirect = True
-                login_failed = False
+                # トップ画面表示
+                from top import TopPage
+                top = TopPage(self.request)
+                return top.index(param)
+
 
         # テンプレ―ト用データ
         template_data = {}
@@ -77,11 +74,7 @@ class LoginPage(Page):
         なんちゃってテンプレート
         """
         page = DivTag('page', H2Tag(u'ログイン画面'))
-        if data['redirect']:
-            from top import TopPage
-            top = TopPage(self.session, self.setting, self.form_data)
-            page = top.make_page()
-        elif data['login']:
+        if data['login']:
             page.add_value(PTag(u'ログイン済みです'))
         else:
             page.add_value([
@@ -98,7 +91,7 @@ class LoginPage(Page):
             if data['login_failed']:
                 page.add_value(PTag(u'ログインに失敗しました'))
 
-        return page
+        return self.html_page_template(page)
 
 
 if __name__ == '__main__':

@@ -22,11 +22,14 @@ class AdminPage(Page):
     """
     管理画面出力
     """
-    def __init__(self, session, setting, form_data=None):
-        super(AdminPage, self).__init__(session, setting, form_data)
+    def __init__(self,request):
+        self.request = request
+        self.session = request['Session']
+        self.form_data = request['Post']
+        self.setting = request['Setting']
         self.set_title(u'管理画面')
         self.dba = DBAccess.order()
-    def make_page(self):
+    def index(self, param):
         """
         ページの処理
         """
@@ -114,7 +117,7 @@ class AdminPage(Page):
             page.add_value(user_tbl)
 
 
-        return page
+        return self.html_page_template(page)
 
 
 if __name__ == '__main__':

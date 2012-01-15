@@ -19,16 +19,12 @@ class Page(object):
     """
     ページクラス
     """
-    def __init__(self, session, setting, form_data=None):
+    def __init__(self, request):
         self.set_title(u'未実装ページ')
+        self.request = request
         self.contetn_types = []
-        self.session = session
-        self.setting = setting
-        if form_data is None:
-            import cgi
-            self.form_data = cgi.FieldStorage()
-        else:
-            self.form_data = form_data
+        self.session = request['Session']
+        self.form_data = request['Post']
         self.contenttype_html()
     def get_title(self):
         return self.title
@@ -47,6 +43,21 @@ class Page(object):
         テキストの出力
         """
         self.set_contenttype('text/plane')
+    def error(self, param):
+        """
+        エラーページ
+        """
+        html = HtmlTag([
+                HeadTag(TitleTag(u'テストページ[未実装ページです]')),
+                BodyTag([
+                    CenterTag([
+                        self.make_top(),
+                        HRTag(),
+                        DivTag('page', PTag(u'未実装ページです')),
+                    ])
+                ])
+            ])
+        return html
     def make_top(self):
         """
         トップ部分作成
@@ -61,12 +72,6 @@ class Page(object):
             top.add_value(u'[%s]' % ATag('./%s'%p[0], p[1]))
 
         return top
-    def make_page(self):
-        """
-        ページ部分の作成
-        基本的にはここを書き換える
-        """
-        return DivTag('page', PTag(u'未実装ページです'))
     def html_page_template(self, page):
         """
         HTMLのテンプレ―ト
@@ -77,18 +82,11 @@ class Page(object):
                     CenterTag([
                         self.make_top(),
                         HRTag(),
-                        self.make_page(),
+                        page,
                     ])
                 ])
             ])
         return html
-    def make_html(self):
-        """
-        HTMLの作成
-        """
-        return self.html_page_template(self.make_page())
-    def __str__(self):
-        return '%s' % self.make_html();
 
 
 if __name__ == '__main__':

@@ -16,21 +16,35 @@ from xml.sax.saxutils import *
 from page import Page
 from lib.tag import *
 from lib import DBAccess
+from lib.user import User
+from lib.problem import *
 
 class TopPage(Page):
     """
     トップページ出力
     """
-    def __init__(self, session, setting, form_data=None):
-        super(TopPage, self).__init__(session, setting, form_data)
+    def __init__(self,request):
+        self.request = request
+        self.session = request['Session']
+        self.form_data = request['Post']
         self.set_title(u'トップ')
         self.dba = DBAccess.order()
-    def make_page(self):
+    def index(self, param):
         """
         ページの処理
         """
+        probs = get_problems()
+        users = {}
+        for p in probs:
+            user_id = p.getvalue('user_id', None)
+            if user_id and not user_id in users.keys():
+                users[user_id] = User(user_id)
+
+
         # テンプレ―ト用データ
         template_data = {}
+        template_data['problems'] = probs
+        template_data['users'] = users
 
         return self.template(template_data)
 
@@ -55,7 +69,22 @@ class TopPage(Page):
             ])
         ])
 
-        return page
+        page.add_value('<br><br>')
+
+        prob_table = TableTag(u'問題',TRTag([
+                                TDTag(u'問題番号'),
+                                TDTag(u'問題名'),
+                                TDTag(u'投稿者'),
+                        ]),{'border':'2'})
+        for p in data['problems']:
+            prob_table.add_value(TRTag([
+                TDTag(u'%d'%p.getvalue('problem_id','-1')),
+                TDTag(p.getvalue('title','')),
+                TDTag(data['users'][p.getvalue('user_id',-1)].getvalue('nickname','')),
+            ]))
+        page.add_value(prob_table)
+
+        return self.html_page_template(page)
 
 
 if __name__ == '__main__':

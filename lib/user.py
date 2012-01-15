@@ -33,6 +33,10 @@ class User(object):
         if key in self.data:
             return self.data[key]
         return default
+    def __setitem__(self, key, value):
+        return self.setvalue(key, value)
+    def __getitem__(self, key):
+        return self.getvalue(key)
     def select(self, user_id=None, username=None, password=None, salt=''):
         self.data = {}
         where = {}
@@ -102,5 +106,4 @@ class User(object):
         return True
     def password_hash(self, username, password, salt=''):
         return hashlib.sha256(salt + '' + username + ':' + password).hexdigest()
-        
-        
+

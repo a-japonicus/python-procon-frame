@@ -19,10 +19,12 @@ class LogoutPage(Page):
     """
     ログアウトページ出力
     """
-    def __init__(self, session, setting, form_data=None):
-        super(LogoutPage, self).__init__(session, setting, form_data)
+    def __init__(self,request):
+        self.request = request
+        self.session = request['Session']
+        self.form_data = request['Post']
         self.set_title(u'ログアウト')
-    def make_page(self):
+    def index(self, param):
         """
         ページの処理
         """
@@ -31,9 +33,14 @@ class LogoutPage(Page):
         self.session.delvalue('user_id')
 #        self.session.delete()
 
+        # ログアウトしたらトップ画面を表示
+        if login:
+            from top import TopPage
+            top = TopPage(self.request)
+            return top.index(param)
+
         # テンプレ―ト用データ
         template_data = {}
-        template_data['login'] = login
 
         return self.template(template_data)
 
@@ -41,17 +48,11 @@ class LogoutPage(Page):
         """
         なんちゃってテンプレート
         """
-        page = ''
-        if not data['login']:
-            page = DivTag('page', [
-                H2Tag(u'ログアウト画面'),
-                PTag(u'ログインしていません')
-            ])
-        else:
-            from top import TopPage
-            top = TopPage(self.session, self.setting, self.form_data)
-            page = top.make_page()
-        return page
+        page = DivTag('page', [
+            H2Tag(u'ログアウト画面'),
+            PTag(u'ログインしていません')
+        ])
+        return self.html_page_template(page)
 
 
 if __name__ == '__main__':

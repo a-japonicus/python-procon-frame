@@ -27,13 +27,13 @@ class ProfilePage(Page):
     """
     プロフィールページ出力
     """
-    def __init__(self, session, setting, form_data=None):
-        super(ProfilePage, self).__init__(session, setting, form_data)
+    def __init__(self,request):
+        self.request = request
+        self.session = request['Session']
+        self.form_data = request['Post']
         self.set_title(u'プロフィール')
         self.dba = DBAccess.order()
-    def update_password(self, username, old_password, new_password):
-        pass
-    def make_page(self):
+    def index(self, param):
         """
         ページの処理
         """
@@ -132,7 +132,7 @@ class ProfilePage(Page):
             elif data['edit_status'] == EDIT_FAILED:
                 page.add_value(PTag(u'更新に失敗しました'))
 
-        return page
+        return self.html_page_template(page)
 
 
 if __name__ == '__main__':

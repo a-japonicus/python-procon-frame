@@ -16,16 +16,19 @@ from page import Page
 from lib.tag import *
 from lib import DBAccess
 from lib.user import User
+from lib.problem import Problem
 
 class EditPage(Page):
     """
     問題作成ページ出力
     """
-    def __init__(self, session, setting, form_data=None):
-        super(EditPage, self).__init__(session, setting, form_data)
+    def __init__(self,request):
+        self.request = request
+        self.session = request['Session']
+        self.form_data = request['Post']
         self.set_title(u'問題作成')
         self.dba = DBAccess.order()
-    def make_page(self):
+    def index(self, param):
         """
         ページの処理
         """
@@ -43,8 +46,13 @@ class EditPage(Page):
                 title = unicode(self.form_data.getvalue('title', ''), 'utf-8')
                 data = unicode(self.form_data.getvalue('data', ''), 'utf-8')
                 user_id = self.session.getvalue('user_id')
-                if title is not None and data is not None and user_id is not None:
-                    self.dba.insert('problem_tbl', {'user_id':user_id, 'title':title, 'data':data})
+
+                prob = Problem()
+                prob['user_id'] = user_id
+                prob['title'] = title
+                prob['data'] = data
+                if prob.correct():
+                    prob.insert()
 
         # テンプレ―ト用データ
         template_data = {}
@@ -89,7 +97,7 @@ class EditPage(Page):
                 ])
             )
 
-        return page
+        return self.html_page_template(page)
 
 
 if __name__ == '__main__':
