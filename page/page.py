@@ -43,6 +43,15 @@ class Page(object):
         テキストの出力
         """
         self.set_contenttype('text/plane')
+    def redirect(self, url):
+        """
+        リダイレクトするだけのページ
+        """
+        html = HtmlTag([
+            HeadTag(RedirectTag('/top')),
+            BodyTag(),
+        ])
+        return html
     def index(self, param):
         """
         デフォルトページ

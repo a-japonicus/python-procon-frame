@@ -53,10 +53,7 @@ class LoginPage(Page):
                 # ログイン成功
                 self.session.setvalue('login', True)
                 self.session.setvalue('user_id', user.getvalue('user_id'))
-                # トップ画面表示
-                from top import TopPage
-                top = TopPage(self.request)
-                return top.index(param)
+                redirect = True
 
 
         # テンプレ―ト用データ
@@ -74,7 +71,9 @@ class LoginPage(Page):
         なんちゃってテンプレート
         """
         page = DivTag('page', H2Tag(u'ログイン画面'))
-        if data['login']:
+        if data['redirect']:
+            return self.redirect('/top')
+        elif data['login']:
             page.add_value(PTag(u'ログイン済みです'))
         else:
             page.add_value([

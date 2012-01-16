@@ -28,19 +28,17 @@ class LogoutPage(Page):
         """
         ページの処理
         """
-        login =  self.session.getvalue('login', False)
-        self.session.delvalue('login')
-        self.session.delvalue('user_id')
-#        self.session.delete()
-
-        # ログアウトしたらトップ画面を表示
+        logout = False
+        login = self.session.getvalue('login', False)
         if login:
-            from top import TopPage
-            top = TopPage(self.request)
-            return top.index(param)
+            self.session.delvalue('login')
+            self.session.delvalue('user_id')
+            logout = True
+#        self.session.delete()
 
         # テンプレ―ト用データ
         template_data = {}
+        template_data['logout'] = logout
 
         return self.template(template_data)
 
@@ -48,6 +46,8 @@ class LogoutPage(Page):
         """
         なんちゃってテンプレート
         """
+        if data['logout']:
+            return self.redirect('/top')
         page = DivTag('page', [
             H2Tag(u'ログアウト画面'),
             PTag(u'ログインしていません')

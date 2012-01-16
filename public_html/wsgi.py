@@ -205,6 +205,7 @@ class App(object):
 
         # レスポンス
         print(response_header)
+        print(u'%s'%debug_output)
         print(u'%s'%response)
         start_response("200 OK", response_header)
         return (u'%s%s'%(debug_output,response)).encode('utf-8')
