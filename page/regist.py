@@ -24,6 +24,7 @@ class RegistPage(Page):
     def __init__(self,request):
         self.request = request
         self.session = request['Session']
+        self.setting = request['Setting']
         self.form_data = request['Post']
         self.set_title(u'登録')
         self.dba = DBAccess.order()
