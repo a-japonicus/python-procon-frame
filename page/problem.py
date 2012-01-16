@@ -41,6 +41,7 @@ class ProblemPage(Page):
                 template_data['id'] = prob.getvalue('problem_id', -1)
                 template_data['title'] = prob.getvalue('title', '')
                 template_data['data'] = prob.getvalue('data', '')
+                print(template_data['data'])
                 return self.problem_template(template_data)
 
         template_data = {}
@@ -59,6 +60,15 @@ class ProblemPage(Page):
                 return prob['data']
 
         return u'No Data'
+
+    def send(self, param):
+        """
+        回答受信
+        """
+        print (self.form_data.getvalue('key'))
+        print (self.form_data.getvalue('file'))
+
+        return u'Recv'
 
     def problem_template(self, data):
         """

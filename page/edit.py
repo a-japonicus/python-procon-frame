@@ -36,6 +36,7 @@ class EditPage(Page):
         mode = self.form_data.getvalue('mode')
         title = unicode(self.form_data.getvalue('title', '練習問題'), 'utf-8')
         data = unicode(self.form_data.getvalue('data', 'ここに問題文を入力してください'), 'utf-8')
+        print(data)
 
         if mode == 'regist':
             if self.form_data.getvalue('return') is not None:
@@ -91,7 +92,7 @@ class EditPage(Page):
             page.add_value(
                 FormTag(action='./edit', values=[
                     u'問題名：%s'%TextTag(name='title', value=escape(data['problem_title'])),BRTag(),
-                    TextAreaTag(name='data', values=escape(data['problem_data']), elements={'cols':100, 'rows':20}),BRTag(),
+                    TextAreaTag(name='data', values=escape(data['problem_data']), elements={'cols':100, 'rows':20, 'wrap':'off'}),BRTag(),
                     HiddenTag(name='mode', value='upload'),
                     SubmitTag(value=u'決定'),
                 ])

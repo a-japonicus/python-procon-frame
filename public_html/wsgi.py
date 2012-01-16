@@ -19,6 +19,7 @@ from lib import DBAccess
 from lib.session import Session
 from lib.tag import *
 
+
 class App(object):
     """
     WSGI アプリ
@@ -153,6 +154,7 @@ class App(object):
         # ルーティング情報取得
         route = environ.get('PATH_INFO', '').strip('/').split('/')
         # POSTデータ取出し
+        """
         post = MyStrage()
         if environ.get('REQUEST_METHOD') == 'POST':
             content_length = environ.get('CONTENT_LENGTH', '')
@@ -163,9 +165,14 @@ class App(object):
                 input_parse = cgi.parse_qsl(wsgi_input.read(int(content_length)))
                 for value in input_parse:
                     post.setvalue(value[0], value[1])
+        """
+        if environ['REQUEST_METHOD'].upper() == 'POST':
+            post = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ, keep_blank_values=1)
+        else:
+            post = cgi.FieldStorage()
         # データベース
         dba = DBAccess.create(setting['database'])
-        if setting['database']['create'] == 'On':
+        if setting['database']['create'].upper() == 'ON':
             self.create_table(dba)
         # クッキー
         cookie=SimpleCookie(environ.get('HTTP_COOKIE',''))
@@ -192,7 +199,7 @@ class App(object):
 
         #デバッグ出力
         debug_output = ''
-        if setting['debug']['enable'] == 'On':
+        if setting['debug']['enable'].upper() == 'ON':
             debug_output = self.debug()
 
         session.close()
