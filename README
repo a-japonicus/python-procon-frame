@@ -1,3 +1,40 @@
-Pythonの練習用として製作しているフレームです。
+Pythonの練習用として製作しているWebアプリです。
 Python2.7.2で製作しています。
 標準パッケージのみで動作させています。
+データベースとしてsqlite3を使用しています。そのほかのDBを使用したい場合は、lib/DBAccessを作り直す必要があります。
+
+使い方
+・Python2.7.2をインストールしてください。
+・server.pyを実行するとポート80でサーバが起動します。Apacheを使用する場合は、WSGIを採用していますので、mod_wsgi を使用してください
+
+動作説明
+・wsgiでルーティングを行っています。
+例：
+　アドレス：http://example.com/top/index/2/3
+　この場合は、page/top.pyからTopPageクラスをインポートし、indexメソッドを呼び出します。
+　呼び出す際に、2，3が格納されたリストが引数として与えられます。
+　ページクラスは以下のようになっています。
+
+ページクラスの例：
+top.py
+    from page import Page
+    class TopPage(Page):
+        def __init__(self, request):
+            # 様々な情報がMyStrageオブジェクトに格納されている。
+            # オブジェクトの詳細はlib/MyStrage.py、中身はpublic_html/wsgi.pyを参照
+            self.request = request;
+        def index(self, param):
+            """
+            HTMLを返す
+            """
+            # 直接HTMLを返す
+            #page = '<html><head></head><body></body></html>'
+
+            #もしくはタグクラスを返す
+            #page = HtmlTag([HeadTag(), BodyTag()])
+
+            #基本はページの情報だけ作ってHTMLテンプレートに入力して返す
+            # テンプレートはpage/page.pyのPageクラスを参照
+            page = DivTag('page', PTag(u'ページです'))
+
+            return self.html_page_template(page)
