@@ -125,10 +125,10 @@ class App(object):
         # POST
         post_list = PTag(Tag('font', Tag('b','POST: '), {'size':3}))
         post = self.request.getvalue('Post', {})
-        post_items = post.items()
-        if len(post_items) > 0:
-            for name,value in post_items:
-                post_list.add_value(escape(unicode('%s => %s, ' % (name, value), 'utf-8')))
+        print (post)
+        if len(post) > 0:
+            for key in post:
+                post_list.add_value(escape(unicode('%s => %s, ' % (key, post[key]), 'utf-8')))
             debug_output.add_value(post_list)
         # ERROR
         if len(self.error_info) > 0:
