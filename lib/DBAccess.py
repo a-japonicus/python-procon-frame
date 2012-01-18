@@ -102,7 +102,25 @@ class DBAccess(object):
         """
         return self.prepared_list
 
-    def select(self, table, fields='*', where={}, limit=None, other=''):
+    def _create_where(self, where):
+        """
+        where文作成
+        """
+        sql_where = ''
+        if len(where) > 0:
+            sql_where += ' WHERE'
+            items = where.items()
+            for i in range(len(items)):
+                if i > 0:
+                    sql_where += ' AND'
+                if items[i][0][-1] in ('=', '<', '>'):
+                    sql_where += ' %s:%s'%(items[i][0], self.set_prepared_list(items[i][1]))
+                else:
+                    sql_where += ' %s=:%s'%(items[i][0], self.set_prepared_list(items[i][1]))
+
+#            sql_where += ' AND '.join(['%s=:%s'%(k,self.set_prepared_list(v)) for k,v in where.items()])
+        return sql_where
+    def select(self, table, fields='*', where={}, order=[], limit=None, other=''):
         """
         select発行
         """
@@ -114,9 +132,10 @@ class DBAccess(object):
             sql += fields
         sql += ' FROM %s' % table
         self.clear_prepared_list()
-        if len(where) > 0:
-            sql += ' WHERE '
-            sql += ' AND '.join(['%s=:%s'%(k,self.set_prepared_list(v)) for k,v in where.items()])
+        sql += self._create_where(where)
+        if len(order) > 0:
+            sql += ' ORDER BY '
+            sql += ','.join(['%s'%v for v in order])
         if limit != None:
             sql += ' LIMIT %d' % limit
         sql += ' ' + other
@@ -134,9 +153,7 @@ class DBAccess(object):
         if len(sets) > 0:
             sql += ' SET '
             sql += ','.join(['%s=:%s'%(k,self.set_prepared_list(v)) for k,v in sets.items()])
-        if len(where) > 0:
-            sql += ' WHERE '
-            sql += ' AND '.join(['%s=:%s'%(k,self.set_prepared_list(v)) for k,v in where.items()])
+        sql += self._create_where(where)
 
         sql += ' ' + other
         res = self.execute_sql(sql, self.get_prepared_list())
@@ -215,12 +232,14 @@ if __name__ == '__main__':
     import pickle
     data = {'a':'test', 'b':'test2'}
     print (dba.insert(table='session_tbl', values={'session_id':'0'}))
+    print (dba.insert(table='session_tbl', values={'session_id':'1'}))
+    print (dba.insert(table='session_tbl', values={'session_id':'2'}))
     print (dba.update(table='session_tbl', sets={'data':pickle.dumps(data)}))
-    print (dba.delete(table='session_tbl'))
-    print(data)
-    d = dba.select(table='session_tbl', fields=['data'], where={'session_id':'0'})
+    d = dba.select(table='session_tbl', fields='*', where={'session_id>':'0'}, order=['session_id desc'])
     for v in d:
         print (v)
+    print (dba.delete(table='session_tbl'))
+    print(data)
     dba.commit()
 #    except:
 #        print ('Failed')
