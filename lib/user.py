@@ -14,6 +14,18 @@ import uuid
 import hashlib
 from lib import DBAccess
 
+def get_user_by_hash(key):
+    if key is None:
+        return None
+    dba = DBAccess.order()
+    data = dba.select('user_tbl', '*', {'hash':key})
+    user = None
+    if len(data) == 1:
+        user = User()
+        for k,v in data[0].items():
+            user[k] = v
+    return user
+
 class User(object):
     """
     ユーザ用ライブラリ
@@ -106,4 +118,8 @@ class User(object):
         return True
     def password_hash(self, username, password, salt=''):
         return hashlib.sha256(salt + '' + username + ':' + password).hexdigest()
+    def __setitem__(self, key, value):
+        return self.setvalue(key, value)
+    def __getitem__(self, key):
+        return self.getvalue(key)
 

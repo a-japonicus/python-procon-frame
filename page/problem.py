@@ -16,7 +16,7 @@ from xml.sax.saxutils import *
 from page import Page
 from lib.tag import *
 from lib import DBAccess
-from lib.user import User
+from lib.user import User,get_user_by_hash
 from lib.problem import *
 
 class ProblemPage(Page):
@@ -59,16 +59,24 @@ class ProblemPage(Page):
             if prob.correct():
                 return prob['data']
 
-        return u'No Data'
+        return None
 
     def send(self, param):
         """
         回答受信
         """
-        print (self.form_data.getvalue('key'))
-        print (self.form_data.getvalue('file'))
+        recv = u'回答を受信しました\r\n'
+        key = self.form_data.getvalue('key')
+        data = self.form_data.getvalue('file')
+        if key is not None:
+            user = get_user_by_hash(key)
+            if user:
+                recv += u'ユーザ名:%s\r\n' % user['username']
+            else:
+                recv += u'ユーザが見つかりません。ハッシュを確認してください。\r\n'
+        recv += u'受信データサイズ:%d\r\n' % len(data)
 
-        return u'Recv'
+        return recv
 
     def problem_template(self, data):
         """

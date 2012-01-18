@@ -212,13 +212,17 @@ class App(object):
             # クッキーにセッションIDをセット
             response_header.append(('Set-Cookie', '%s=%s'%(setting['session']['id'],session.get_session_id())))
 
-
         # レスポンス
         print(response_header)
         print(u'%s'%debug_output)
         print(u'%s'%response)
-        start_response("200 OK", response_header)
-        return (u'%s%s'%(debug_output,response)).encode('utf-8')
+        if response is not None:
+            start_response("200 OK", response_header)
+            return (u'%s%s'%(debug_output,response)).encode('utf-8')
+        else:
+            start_response("404 Not Found", response_header)
+            return (u'%sページが見つかりません'%(debug_output)).encode('utf-8')
+
 
 
 if __name__ == "__main__":
