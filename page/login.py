@@ -70,7 +70,7 @@ class LoginPage(Page):
         """
         なんちゃってテンプレート
         """
-        page = DivTag('page', H2Tag(u'ログイン画面'))
+        page = CenterTag()
         if data['redirect']:
             return self.redirect('/top')
         elif data['login']:
@@ -90,7 +90,7 @@ class LoginPage(Page):
             if data['login_failed']:
                 page.add_value(PTag(u'ログインに失敗しました'))
 
-        return self.html_page_template(page)
+        return self.html_page_template(DivTag('page', [H2Tag(u'ログイン画面'),page]))
 
 
 if __name__ == '__main__':

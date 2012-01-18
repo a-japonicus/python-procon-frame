@@ -84,7 +84,7 @@ class RegistPage(Page):
         """
         なんちゃってテンプレート
         """
-        page = DivTag('page', H2Tag(u'登録画面'))
+        page = CenterTag()
         if data['login']:
             page.add_value(PTag(u'ログインしています'))
         elif data['regist']:
@@ -105,7 +105,7 @@ class RegistPage(Page):
             if data['regist_failed']:
                 page.add_value(PTag(u'登録に失敗しました'))
 
-        return self.html_page_template(page)
+        return self.html_page_template(DivTag('page', [H2Tag(u'登録画面'), page]))
 
 
 if __name__ == '__main__':

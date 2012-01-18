@@ -48,7 +48,7 @@ class Page(object):
         リダイレクトするだけのページ
         """
         html = HtmlTag([
-            HeadTag(RedirectTag('/top')),
+            HeadTag(RedirectTag(url)),
             BodyTag(),
         ])
         return html
@@ -107,7 +107,11 @@ class Page(object):
                     CenterTag([
                         self.make_top(),
                         HRTag(),
-                        page,
+                        TableTag(values=[
+                            TRTag([
+                                THTag(page),
+                            ]),
+                        ])
                     ])
                 ])
             ])

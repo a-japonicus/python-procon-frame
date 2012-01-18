@@ -86,7 +86,9 @@ class App(object):
             response_page = page_class(request)
         except:
             import sys
-            self.error_info.append(sys.exc_info())
+            import traceback
+            info = sys.exc_info()
+            self.error_info.append([info, traceback.format_tb(info[2])[0]])
             response_page = None
 
         # ページクラスが読み込めなければ未実装と判定
@@ -100,7 +102,9 @@ class App(object):
             page_data = response_method(param)
         except:
             import sys
-            self.error_info.append(sys.exc_info())
+            import traceback
+            info = sys.exc_info()
+            self.error_info.append([info, traceback.format_tb(info[2])[0]])
             response_method = getattr(response_page, 'error')
             page_data = response_method(param)
 
@@ -125,7 +129,6 @@ class App(object):
         # POST
         post_list = PTag(Tag('font', Tag('b','POST: '), {'size':3}))
         post = self.request.getvalue('Post', {})
-        print (post)
         if len(post) > 0:
             for key in post:
                 post_list.add_value(escape(unicode('%s => %s, ' % (key, post[key]), 'utf-8')))

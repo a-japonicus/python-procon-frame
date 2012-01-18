@@ -52,7 +52,7 @@ class TopPage(Page):
         """
         なんちゃってテンプレート
         """
-        page = DivTag('page', [
+        page = CenterTag([
             H2Tag(u'トップ画面'),
             DivTag('update', [
                 TableTag(caption=u'更新履歴',elements = {'border':2, 'rules':'none'}, values=[
@@ -85,7 +85,7 @@ class TopPage(Page):
             ]))
         page.add_value(prob_table)
 
-        return self.html_page_template(page)
+        return self.html_page_template(DivTag('page', page))
 
 
 if __name__ == '__main__':
