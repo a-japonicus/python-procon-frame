@@ -42,7 +42,7 @@ class Problem(object):
         return True
     def select(self, problem_id):
         self.data = {}
-        ret = self.dba.select('problem_tbl', '*', {'problem_id':problem_id})
+        ret = self.dba.select('problem_tbl', '*', {'id':problem_id})
         if len(ret) != 1:
             return False
         self.data = ret[0]
@@ -52,7 +52,8 @@ class Problem(object):
         if ret == 1:
             return True
         return False
-
+    def items(self):
+        return self.data.items()
 
 def get_problems():
     problems = []

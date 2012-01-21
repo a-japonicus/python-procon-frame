@@ -52,7 +52,7 @@ class LoginPage(Page):
             if user.login(username, password, self.setting['password']['salt']):
                 # ログイン成功
                 self.session.setvalue('login', True)
-                self.session.setvalue('user_id', user.getvalue('user_id'))
+                self.session.setvalue('user_id', user.getvalue('id'))
                 redirect = True
 
 

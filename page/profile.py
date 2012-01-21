@@ -68,7 +68,7 @@ class ProfilePage(Page):
         # テンプレ―ト用データ
         template_data = {}
         template_data['login'] = login
-        template_data['userid'] = str(user.getvalue('user_id', -1))
+        template_data['userid'] = str(user.getvalue('id', -1))
         template_data['username'] = user.getvalue('username', '')
         template_data['nickname'] = user.getvalue('nickname', '')
         template_data['userhash'] = user.getvalue('hash', '')

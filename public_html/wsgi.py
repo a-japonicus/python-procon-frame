@@ -44,10 +44,49 @@ class App(object):
         """
         テーブル作成
         """
+        auto_increment = 'AUTO_INCREMENT'
+        if dba.setting['sql'] == 'sqlite':
+            auto_increment = 'AUTOINCREMENT'
+
         sqls = [
-            'CREATE TABLE session_tbl(session_id CHAR(40) UNIQUE, data BLOB, update_time INTEGER)',
-            'CREATE TABLE user_tbl(user_id INTEGER PRIMARY KEY, username CHAR(32) UNIQUE, password CHAR(64), nickname CHAR(32), hash CHAR(64) UNIQUE, login_time INTEGER, create_time INTEGER)',
-            'CREATE TABLE problem_tbl(problem_id INTEGER PRIMARY KEY, user_id INTEGER, title CHAR(64), data TEXT, create_time INTEGER)',
+            # セッションテーブル
+            ('CREATE TABLE session_tbl('
+                'id CHAR(40) UNIQUE'         # セッションID
+                ',data BLOB'                    # セッションデータ。シリアライズされて格納
+                ',update_time INTEGER'          # 更新日
+                ')'),
+            # ユーザテーブル
+            ('CREATE TABLE user_tbl('
+                'id INTEGER PRIMARY KEY %s'                     # ユーザID
+                ', username CHAR(32) UNIQUE'                    # ユーザ名
+                ', password CHAR(64)'                           # パスワード（ハッシュ化済み）
+                ', nickname CHAR(32)'                           # 公開名
+                ', hash CHAR(64) UNIQUE'                        # ハッシュ（回答投稿時にユーザ判別に使用）
+                ', ip_address CHAR(40)'                         # 登録したIPアドレス
+                ', status INTEGER DEFAULT 0'                    # ユーザの状態
+                ', login_time DATETIME'                         # ログイン時間
+                ', create_time DATETIME'                        # 作成日
+                ')'%auto_increment),
+            # 問題テーブル
+            ('CREATE TABLE problem_tbl('
+                'id INTEGER PRIMARY KEY %s'                     # 問題ID
+                ',user_id INTEGER'                              # 投稿ユーザID
+                ',title CHAR(64)'                               # 問題タイトル
+                ',data TEXT'                                    # 問題内容
+                ',open_time DATETIME DEFAULT NULL'              # 公開開始時間
+                ',limit_time INTEGER DEFAULT NULL'              # 制限時間
+                ',max_answer INTEGER DEFAULT NULL'              # 最大投稿回数
+                ',create_time DATETIME'                         # 作成時間
+                ')'%auto_increment),
+            # 回答テーブル
+            ('CREATE TABLE answer_tbl('
+                'id INTEGER PRIMARY KEY %s'                     # 回答ID
+                ',user_id INTEGER'                              # 投稿ユーザID
+                ',problem_id INTEGER'                           # 問題ID
+                ',data TEXT'                                    # 回答内容
+                ',score INTEGER'                                # スコア
+                ',create_time DATETIME'                         # 作成時間
+                ')'%auto_increment),
         ]
         for s in sqls:
             try:
@@ -104,7 +143,7 @@ class App(object):
             import sys
             import traceback
             info = sys.exc_info()
-            self.error_info.append([info, traceback.format_tb(info[2])[0]])
+            self.error_info.append([info, traceback.format_tb(info[2])])
             response_method = getattr(response_page, 'error')
             page_data = response_method(param)
 
@@ -215,7 +254,7 @@ class App(object):
         # レスポンス
         print(response_header)
         print(u'%s'%debug_output)
-        print(u'%s'%response)
+        print(u'%s\n'%response)
         if response is not None:
             start_response("200 OK", response_header)
             return (u'%s%s'%(debug_output,response)).encode('utf-8')

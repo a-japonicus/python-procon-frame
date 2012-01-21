@@ -97,7 +97,7 @@ class AdminPage(Page):
             # user_tbl
             user_tbl = TableTag(caption=u'user_tbl', elements={'border':3})
             tr = TRTag(elements={'bgcolor':'gray'})
-            user_tbl_fields = ['user_id', 'username', 'nickname', 'hash', 'password', 'login_time', 'create_time']
+            user_tbl_fields = ['id', 'username', 'nickname', 'hash', 'password', 'login_time', 'create_time']
             for field in user_tbl_fields:
                 tr.add_value(TDTag(str(field)))
             tr.add_value([

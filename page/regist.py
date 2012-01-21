@@ -17,6 +17,15 @@ from lib.tag import *
 from lib import DBAccess
 from lib.user import User
 
+REGIST_NONE = 0
+REGIST_CORRECT = 1
+USER_EXIST = 2
+USERNAME_ERROR = 3
+PASSWORD_ERROR = 4
+PASSWORD_NOT_SAME = 5
+OTHER_ERROR = 6
+
+
 class RegistPage(Page):
     """
     ユーザ登録ページ出力
@@ -28,19 +37,22 @@ class RegistPage(Page):
         self.form_data = request['Post']
         self.set_title(u'登録')
         self.dba = DBAccess.order()
-    def regist(self, username, password):
+    def regist_user(self, username, password):
         """
         登録
         """
-        user = User(username)
+        user = User(username=username)
         if user.exist():
-            return False
+            return USER_EXIST
         user.setvalue('username', username)
         user.setvalue('nickname', u'名無し')
         user.reset_hash()
         if not user.reset_password(new_password=password, salt=self.setting['password']['salt'], force=True):
-            return False
-        return user.insert()
+            return PASSWORD_ERROR
+        if user.insert():
+            self.user = user;
+            return REGIST_CORRECT
+        return OTHER_ERROR
 
     def index(self, param):
         """
@@ -53,21 +65,27 @@ class RegistPage(Page):
         login = False;
         regist = False
         regist_failed = False
+        regist_error = REGIST_NONE
 
-        if not username.isalnum():
+        if not username.isalnum() and username != '':
+            regist_error = USERNAME_ERROR
             username = ''
 
         if self.session.getvalue('login', False):
             login = True
         elif mode == 'regist':
             regist_failed = True
-            user_id = self.regist(username, password)
-            if password == retype_password  and  user_id:
+
+            if password == retype_password:
                 # ここで登録
-                self.session.setvalue('login', True)
-                self.session.setvalue('user_id', user_id)
-                regist = True
-                regist_failed = False
+                regist_error = self.regist_user(username, password)
+                if regist_error == REGIST_CORRECT:
+                    self.session.setvalue('login', True)
+                    self.session.setvalue('user_id', self.user['id'])
+                    regist = True
+                    regist_failed = False
+            else:
+                regist_error = PASSWORD_NOT_SAME
 
 
         # テンプレ―ト用データ
@@ -77,6 +95,7 @@ class RegistPage(Page):
         template_data['regist'] = regist
         template_data['regist_failed'] = regist_failed
         template_data['username'] = username
+        template_data['regist_error'] = regist_error
 
         return self.template(template_data)
 
@@ -103,7 +122,7 @@ class RegistPage(Page):
                 ])
             ])
             if data['regist_failed']:
-                page.add_value(PTag(u'登録に失敗しました'))
+                page.add_value(PTag(u'登録に失敗しました Error:%d'%data['regist_error']))
 
         return self.html_page_template(DivTag('page', [H2Tag(u'登録画面'), page]))
 

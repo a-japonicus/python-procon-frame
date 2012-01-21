@@ -21,4 +21,5 @@ if __name__ == "__main__":
     from wsgi import App
     os.chdir('public_html')
     server = simple_server.make_server("", 80, App())
+    print ('Server recv start')
     server.serve_forever()

@@ -12,7 +12,10 @@
 #-------------------------------------------------------------------------------
 import uuid
 import hashlib
+import re
 from lib import DBAccess
+
+re_pass = re.compile('\A\w{4,}\Z')
 
 def get_user_by_hash(key):
     if key is None:
@@ -26,14 +29,26 @@ def get_user_by_hash(key):
             user[k] = v
     return user
 
+def get_user_by_username(username):
+    if username is None:
+        return None
+    dba = DBAccess.order()
+    data = dba.select('user_tbl', '*', {'username':username})
+    user = None
+    if len(data) == 1:
+        user = User()
+        for k,v in data[0].items():
+            user[k] = v
+    return user
+
 class User(object):
     """
     ユーザ用ライブラリ
     """
-    def __init__(self, user_id=None):
+    def __init__(self, user_id=None, username=None, password=None, salt=''):
         self.dba = DBAccess.order()
         self.data = {}
-        self.select(user_id=user_id)
+        self.select(user_id, username, password, salt)
     def login(self, username, password=None, salt=''):
         self.select(username=username, password=password, salt=salt)
         return self.exist()
@@ -53,12 +68,12 @@ class User(object):
         self.data = {}
         where = {}
         if user_id is not None:
-            where['user_id'] = user_id
+            where['id'] = user_id
         if username is not None:
             where['username'] = username
         if password is not None:
             where['password'] = self.password_hash(username, password, salt)
-        if 'user_id' in where or 'username' in where:
+        if 'id' in where or 'username' in where:
             data = self.dba.select('user_tbl', '*', where)
             if len(data) != 1:
                 return False
@@ -78,8 +93,8 @@ class User(object):
             try:
                 self.dba.insert('user_tbl', self.data)
                 self.dba.commit()
-                self.select(self.getvalue('user_id'), self.getvalue('username'))
-                return self.getvalue('user_id')
+                self.select(self.getvalue('id'), self.getvalue('username'))
+                return self.getvalue('id')
             except:
                 self.dba.rollback()
         return None
@@ -103,13 +118,13 @@ class User(object):
         if not self.exist():
             return False
         if not force:
-            if old_password is None or not old_password.isalnum():
+            if re_pass.match(old_password) is None:
                 return False
             old_pass_hash = self.password_hash(self.data['username'], old_password, salt)
             if self.data['password'] != old_pass_hash:
                 return False
 
-        if new_password is None or not new_password.isalnum():
+        if re_pass.match(new_password) is None:
             return False
         new_pass_hash = self.password_hash(self.data['username'], new_password, salt)
 #        if self.dba.update('user_tbl',{'password':new_pass_hash}, {'username':self.data['username']}) != 1:
@@ -122,4 +137,6 @@ class User(object):
         return self.setvalue(key, value)
     def __getitem__(self, key):
         return self.getvalue(key)
+    def items(self):
+        return self.data.items()
 
