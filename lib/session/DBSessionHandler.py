@@ -38,7 +38,7 @@ class DBSessionHandler(SessionHandler):
         セッション読み込み
         """
         if session_id is not None:
-            res = self.dba.select('session_tbl', fields={'data'}, where={'id':session_id, 'update_time>':time.mktime(gmtime())-lifetime})
+            res = self.dba.select('session_tbl', fields='data', where={'id':session_id, 'update_time>':time.mktime(gmtime())-lifetime})
             if len(res) == 1:
                 return res[0]['data'].encode('utf-8')
         return None
