@@ -18,8 +18,8 @@ if __name__ == "__main__":
     import CGIHTTPServer
     import os
     from wsgiref import simple_server
-    from wsgi import App
+    from wsgi import application
     os.chdir('public_html')
-    server = simple_server.make_server("", 80, App())
+    server = simple_server.make_server("", 80, application)
     print ('Server recv start')
     server.serve_forever()

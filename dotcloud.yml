@@ -1,3 +1,5 @@
 www:
-    type: python
-    approot: public_html
+  type: python
+  approot: public_html
+data:
+  type: mysql

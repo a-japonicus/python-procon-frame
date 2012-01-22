@@ -28,7 +28,7 @@ class DBSessionHandler(SessionHandler):
         セッション生成
         """
         try:
-            self.dba.insert('session_tbl', {'session_id':session_id, 'data':'', 'update_time':time.mktime(gmtime())})
+            self.dba.insert('session_tbl', {'id':session_id, 'data':'', 'update_time':time.mktime(gmtime())})
             self.dba.commit()
             return True
         except:
@@ -38,7 +38,7 @@ class DBSessionHandler(SessionHandler):
         セッション読み込み
         """
         if session_id is not None:
-            res = self.dba.select('session_tbl', fields={'data'}, where={'session_id':session_id, 'update_time>':time.mktime(gmtime())-lifetime})
+            res = self.dba.select('session_tbl', fields={'data'}, where={'id':session_id, 'update_time>':time.mktime(gmtime())-lifetime})
             if len(res) == 1:
                 return res[0]['data'].encode('utf-8')
         return None
@@ -47,9 +47,9 @@ class DBSessionHandler(SessionHandler):
         セッション書き込み
         """
         if session_id is not None:
-            res = self.dba.update(table='session_tbl', sets={'data':data, 'update_time':time.mktime(gmtime())}, where={'session_id':session_id})
+            res = self.dba.update(table='session_tbl', sets={'data':data, 'update_time':time.mktime(gmtime())}, where={'id':session_id})
             if res == 0:
-                self.dba.insert('session_tbl', {'session_id':session_id, 'data':data, 'update_time':time.mktime(gmtime())})
+                self.dba.insert('session_tbl', {'id':session_id, 'data':data, 'update_time':time.mktime(gmtime())})
             self.dba.commit()
 
     def delete(self, session_id):
@@ -57,13 +57,13 @@ class DBSessionHandler(SessionHandler):
         セッション削除
         """
         if session_id is not None:
-            self.dba.delete('session_tbl', where={'session_id':session_id})
+            self.dba.delete('session_tbl', where={'id':session_id})
             self.dba.commit()
     def close(self):
         """
         セッション終了
         """
-        self.dba.close()
+#        self.dba.close()
     def gc(self, lifetime):
         """
         ガーベジコレクション

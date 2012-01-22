@@ -14,6 +14,9 @@ import os
 import cgi
 from Cookie import SimpleCookie
 from xml.sax.saxutils import *
+import sys
+ROOT_DIR = os.path.join(os.path.dirname(__file__), '../')
+sys.path.append(ROOT_DIR)
 from lib.MyStrage import MyStrage
 from lib import DBAccess
 from lib.session import Session
@@ -181,7 +184,7 @@ class App(object):
 
         return CenterTag(debug_output)
 
-    def __call__(self, environ, start_response):
+    def wsgi(self, environ, start_response):
         """
         レスポンスのボディを返す。
         environ
@@ -263,6 +266,9 @@ class App(object):
             return (u'%sページが見つかりません'%(debug_output)).encode('utf-8')
 
 
+def application(environ, start_response):
+    app = App()
+    return app.wsgi(environ, start_response)
 
 if __name__ == "__main__":
     pass
